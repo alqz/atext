@@ -25,17 +25,21 @@ val rows : t -> row list
 val row_to_string : row -> string
 val row_to_char_list : row -> char list
 
-(* [insert st c i j] inserts in [st] the char [c] at row [i] and col [j]. *)
-val insert_char : t -> char -> int -> int -> t
+(* [insert st c ch] inserts in [st] the char [ch] at cursor [c].
+ * None if no changed occured, for example because of backspace at start. *)
+val add : t -> Cursor.t -> char -> t option
 
-(* I wrote some ideas for functions below.
- * Since we are not implementing select,
- * we probably will not use the below functions.
- * If we were, we'd have to change how t is maintained anyway. *)
+(* Moves cursor one character right, left, down, or up.
+ * Right and left may change lines.
+ * None if no change occured. *)
+val inc : t -> Cursor.t -> t option
+val dec : t -> Cursor.t -> t option
+val up : t -> Cursor.t -> t option
+val down : t -> Cursor.t -> t option
 
-(* A substring of the ith row between two indices. *)
-val ithsub : t -> int -> int -> int -> string
+(* [new_cursor st id] creates a new cursor with [id] in state [st]. *)
+val new_cursor : t -> Cursor.id -> t
 
-(* The string between the cursor
- * when the cursor moves down. *)
-val downsub : t -> int -> int -> string * string
+(* [get_cursor st id] returns the cursor with [id], if it exists in [st].
+ * Returns None if no cursor with [id] in [st] *)
+val get_cursor : t -> Cursor.id -> Cursor.t option
