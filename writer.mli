@@ -30,6 +30,10 @@ val listen : unit -> unit
 (* Interpret a raw user input. *)
 val interpret : keyinput -> Instruction.t
 
+(* We expect catch to be called over and over, and attempts
+ * to catch instructions sent from other servers. *)
+val catch : unit -> Instruction.t
+
 (* Listen calls this function, it should probably take the state and
  * put it on the screen. *)
 val update : State.t -> unit
