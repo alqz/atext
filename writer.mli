@@ -27,6 +27,9 @@ val process_inputs : unit -> unit
  * uncap decides to pass in. *)
 val listen : unit -> unit
 
+(* Interpret a raw user input. *)
+val interpret : keyinput -> Instruction.t
+
 (* Listen calls this function, it should probably take the state and
  * put it on the screen. *)
 val update : State.t -> unit

@@ -4,10 +4,11 @@
  *)
 
 type operation =
-  | Add of string
-  | Del of int
-  | Move of int * int
-  | New of int * int
+  | Add of char
+  | Move of dir
+  | New of string
 
 (* Instruction is an operation and the string ID of the cursor. *)
 type t = operation * string
+
+type dir = Up | Down | Left | Right

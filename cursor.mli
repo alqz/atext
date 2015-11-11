@@ -26,6 +26,16 @@ val cn : t -> int
  *   20151109210522xnwuc *)
 val gen_id : unit -> string
 
+(* Move one unit in the directions. *)
+val u : t -> t
+val d : t -> t
+val l : t -> t
+val r : t -> t
+
+(* [move c i j] increases the horizontal coordinate by i and the
+ * vertical coordinate by j. *)
+val move : t -> int -> int -> t
+
 (* A question: do we want to be able to manage the
  * cursor's relative position to state in here?
  * My answer, for now, is no, because we want to

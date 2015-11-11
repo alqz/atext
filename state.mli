@@ -11,13 +11,22 @@
  * or char lists. We decided that it doesn't really matter
  * and strings edge out char lists just slightly. *)
 
-type t = (Cursor.t list) * (string list)
+type row
+
+type t
 
 (* ith row. *)
-val ith : t -> int -> string
+val ith : t -> int -> row
+(* jth column of row. *)
+val jth : row -> int -> char
+(* Gets all rows. *)
+val rows : t -> row list
 
-(* ith row and jth column. *)
-val ijth : t -> int -> int -> char
+val row_to_string : row -> string
+val row_to_char_list : row -> char list
+
+(* [insert st c i j] inserts in [st] the char [c] at row [i] and col [j]. *)
+val insert_char : t -> char -> int -> int -> t
 
 (* I wrote some ideas for functions below.
  * Since we are not implementing select,
