@@ -1,0 +1,3 @@
+compile.opam_packages=async
+compile.opam_packages=curses
+compile.thread=true

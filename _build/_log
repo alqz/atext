@@ -1,0 +1,10 @@
+### Starting build.
+# Target: dummy.ml.depends, tags: { extension:ml, file:dummy.ml, ocaml, ocamldep, package(curses), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread }
+ocamlfind ocamldep -package curses -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules dummy.ml > dummy.ml.depends
+# Target: dummy.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:dummy.cmo, file:dummy.ml, implem, ocaml, package(curses), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread }
+ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -thread -package curses -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o dummy.cmo dummy.ml
+# Target: dummy.d.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:dummy.d.cmo, file:dummy.ml, implem, ocaml, package(curses), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread }
+ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package curses -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o dummy.d.cmo dummy.ml
+# Target: dummy.d.byte, tags: { byte, debug, dont_link_with, extension:byte, file:dummy.d.byte, link, ocaml, package(curses), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), program, quiet, thread }
+ocamlfind ocamlc assertions.cma -linkpkg -g -thread -package curses -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck dummy.d.cmo -o dummy.d.byte
+# Compilation successful.

@@ -11,4 +11,8 @@ type operation =
   | New of Cursor.id
 
 (* Instruction is an operation and the string ID of the cursor. *)
-type t = operation * Cursor.id
+type t = {
+  op     : operation;
+  cursor : Cursor.id;
+  file   : File.name;
+}

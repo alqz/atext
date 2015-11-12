@@ -1,0 +1,5 @@
+"Rule: ocaml: d.cmo* -> d.byte (%=dummy )": "\240+\132\184\216\152\020\155a\004\219\194\240\168\218p"
+"Resource: /home/vagrant/Desktop/atext/dummy.ml": "ckR\237\217\188\030\225\215BJZ\012>\128{"
+"Rule: ocaml dependencies ml (%=dummy )": "y)Y\178wZ6OX?\178\245\006\233\137:"
+"Rule: ocaml: ml -> d.cmo & cmi (%=dummy )": "Y\147\172\180]h7\179\205\137\242\207\233n:\179"
+"Rule: ocaml: ml -> cmo & cmi (%=dummy )": "\140\000\017\014\236\170\219\152\236Yr\022\147i\025\193"

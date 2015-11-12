@@ -13,13 +13,11 @@
 
 type row
 
-type t
-(* For example,
- * t = {
- *   cursors : Cursor.t list;
- *   text : row list
- * }
- *)
+type t = {
+  cursors : Cursor.t list;
+  text    : row list;
+  origin  : File.name;
+}
 
 (* ith row. *)
 val ith : t -> int -> row
