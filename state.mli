@@ -14,6 +14,12 @@
 type row
 
 type t
+(* For example,
+ * t = {
+ *   cursors : Cursor.t list;
+ *   text : row list
+ * }
+ *)
 
 (* ith row. *)
 val ith : t -> int -> row

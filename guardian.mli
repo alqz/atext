@@ -10,3 +10,5 @@
 
 (* Pen basically updates the state using the instruction. *)
 val pen : State.t -> Instruction.t -> State.t
+
+val publish : State.t -> Instruction.t list Deferred.t -> State.t
