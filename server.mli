@@ -20,5 +20,5 @@ val init_client : Socket.Address.t -> Server.t Deferred.t
  * instructions may occumulate after this deferred value is determined, and
  * to access them this function should be called again.
  *)
-val occumulated_instructions : unit -> intruction list Deferred.t
+val occumulated_instructions : Server.t -> intruction list Deferred.t
 
