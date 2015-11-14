@@ -6,9 +6,7 @@
 
 val init : string list -> unit
 
-val cursor_movement : 
-
-val scroll_up : t -> t
+val scroll_up : unit -> unit
 
 val scroll_down : unit -> unit
 
