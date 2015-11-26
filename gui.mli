@@ -10,5 +10,6 @@ val scroll_up : unit -> unit
 
 val scroll_down : unit -> unit
 
+(* y coordinate before x coordinate *)
 val add_char_at : int -> int -> unit
 
