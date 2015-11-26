@@ -13,17 +13,20 @@ type t
 (**
  * Used by the file host. The returned value is guaranteed to be determined
  * immediately.
+ * Arg: max number of collaborators, not including host
  * returns 0 if success, 1 otherwise
  *)
-val init_server : unit -> int Deferred.t
+val init_server : int -> int Deferred.t
 
 (**
  * Used by a visitor. The returned value is determined either when a conneciton
  * with the given host address has been established or when the connection
  * initialization has failed.
+ * Arg: the address of the host. Can be in IP form "1.2.3.4" or DNS form
+ * "www.example.com" ('www' is important)
  * returns 0 if success, 1 otherwise
  *)
-val init_client : Socket.Address.t -> int Deferred.t
+val init_client : string -> int Deferred.t
 
 (**
  * Gets determined with incoming instructions when they arrive. New
@@ -35,5 +38,6 @@ val occumulated_instructions : unit -> Instruction.t Deferred.t
 (* returns 0 if success, 1 otherwise
  * If host then sends to all visitors server is currently connected to
  * If client then send to the host
+ *)
 val send : Instruction.t -> int
 
