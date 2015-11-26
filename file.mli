@@ -22,7 +22,7 @@ exception FileNotFound
 val create : name -> t
 
 (* Opens the file with name. Raise FileNotFound if no file file. *)
-val open : name -> t
+val open_file : name -> t
 
 (* Opens all in folder. *)
 val open_all : unit -> t list

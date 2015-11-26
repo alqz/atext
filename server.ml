@@ -1,23 +1,26 @@
 open Async.Std
+
 type client_info = {
   server  : string;
   pending : Instruction.t AQueue.t;
-  socket  : Async.Std.Socket.t;
-  reader  : Async.Std.Reader;
-  writer  : Async.Std.Writer;
+  reader  : Async.Std.Reader.t;
+  writer  : Async.Std.Writer.t;
 }
 type server_info = {
   port : int;
   mutable clients : (string * Async.Std.Reader.t * Async.Std.Writer.t) list;
   pending : Instruction.t AQueue.t;
 }
-type instance =
+type t =
   | Client of client_info
   | Server of server_info
 
+let instance = ref None
+
 let line_of_instruction instruction =
+  let open Instruction in
   match instruction.op with
-  | Add c -> "add"^(string_of_char c)
+  | Add c -> "add"^(Char.escaped c)
   | Move dir -> "move "^
     begin match dir with
     | Up -> "up"
@@ -36,4 +39,6 @@ let occumulated_instruction () =
   failwith "unimplemented"
 
 let send instruction =
-  if !server_instance = None then failwith "server/client not intialized" else
+  if !instance = None then failwith "server/client not intialized" else
+  failwith "unimplemented"
+
