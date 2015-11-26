@@ -3,26 +3,26 @@ open Async.Std
 type client_info = {
   server  : string;
   port    : int;
-  pending : Instruction.t AQueue.t;
   reader  : Async.Std.Reader.t;
   writer  : Async.Std.Writer.t;
 }
 type server_info = {
   port : int;
   mutable clients : (string * Async.Std.Reader.t * Async.Std.Writer.t) list;
-  pending : Instruction.t AQueue.t;
 }
-type t =
-  | Client of client_info
-  | Server of server_info
 
-let instance = ref None
+(* Whether either server or client have been intialized *)
+let initialized = ref false
+
+(* A queue of incoming instructions pending to be processed by the editor *)
+let pending = AQueue.create()
 
 let line_of_instruction instruction =
   let open Instruction in
+  Cursor.string_of_id instruction.cursor ^ " -> " ^
   begin match instruction.op with
-  | Add c -> "add "^(Char.escaped c)
-  | Move dir -> "move "^
+  | Add c -> "add " ^ (Char.escaped c)
+  | Move dir -> "move " ^
     begin match dir with
     | Up -> "up"
     | Down -> "down"
@@ -30,33 +30,40 @@ let line_of_instruction instruction =
     | Right -> "right" end
   | New id -> "new " ^ Cursor.string_of_id id end ^ "\n"
 
-
 let instruction_of_line line =
   let open Str in
   failwith "unimplemented"
 
+let rec client_loop client =
+  Reader.read_line client.reader >>= function
+  | `Eof -> failwith "connection with host has ended"
+  | `Ok str ->
+      AQueue.push pending (instruction_of_line str);
+      client_loop client
 
 let init_client addr port_num =
-  let open Async.Std.Tcp in
+  if !initialized then failwith "tried to init server/client twice" else
+  let open Tcp in
   connect(to_host_and_port addr port_num) >>= fun (socket, read, write) ->
   let client = {
     server = addr;
     port = port_num;
-    pending = AQueue.create();
     reader = read;
     writer = write;
   } in
-  instance := Some client;
+  ignore (client_loop client);
+  initialized := true;
   return 0
 
-
 let init_server port collab_num =
+  if !initialized then failwith "tried to init server/client twice" else
+  initialized := true;
   failwith "unimplemented"
 
 let occumulated_instruction () =
-  failwith "unimplemented"
+  AQueue.pop pending
 
 let send instruction =
-  if !instance = None then failwith "server/client not intialized" else
+  if not (!initialized) then failwith "server/client not intialized" else
   failwith "unimplemented"
 

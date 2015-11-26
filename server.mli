@@ -2,12 +2,6 @@ open Async.Std
 
 (* server *)
 
-(* Stores whether this server acts as a host or a visitor
- * Stores reading/writing buffers as part of the TCP connections
- * Keeps track of current connections
- *)
-type t
-
 (* Contains an internal mutable data structure including writing and
  * reading buffers
  *)
