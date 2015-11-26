@@ -15,8 +15,8 @@ type t
 (**
  * Used by the file host. The returned value is guaranteed to be determined
  * immediately.
- * Arg1: max number of collaborators, not including host
- * Arg2: port number on which the file is hosted. Make this number high
+ * Arg1: port number on which the file is hosted. Make this number high
+ * Arg2: max number of collaborators, not including host
  * (> 6000). The more obscure the number is the less likely it is currently
  * used. If you get an error it may mean that the port is currently in use,
  * so you should try changing it.

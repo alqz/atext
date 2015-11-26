@@ -1,6 +1,6 @@
 ### Starting build.
 # Target: server.ml.depends, tags: { extension:ml, file:server.ml, ocaml, ocamldep, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
-ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules server.ml > server.ml.depends
+ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules server.ml > server.ml.depends # cached
 # Target: server.mli.depends, tags: { extension:mli, file:server.mli, ocaml, ocamldep, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
 ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules server.mli > server.mli.depends # cached
 # Target: instruction.mli.depends, tags: { extension:mli, file:instruction.mli, ocaml, ocamldep, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
@@ -22,11 +22,15 @@ ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_o
 # Target: aQueue.cmi, tags: { byte, compile, extension:mli, file:aQueue.mli, interf, ocaml, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
 ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o aQueue.cmi aQueue.mli # cached
 # Target: server.d.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:server.d.cmo, file:server.ml, implem, ocaml, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
-ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o server.d.cmo server.ml
+ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o server.d.cmo server.ml # cached
 # Target: aQueue.ml.depends, tags: { extension:ml, file:aQueue.ml, ocaml, ocamldep, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
-ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules aQueue.ml > aQueue.ml.depends
+ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules aQueue.ml > aQueue.ml.depends # cached
 # Target: aQueue.d.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:aQueue.d.cmo, file:aQueue.ml, implem, ocaml, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
-ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o aQueue.d.cmo aQueue.ml
+ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o aQueue.d.cmo aQueue.ml # cached
+# Target: cursor.ml.depends, tags: { extension:ml, file:cursor.ml, ocaml, ocamldep, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
+ocamlfind ocamldep -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -modules cursor.ml > cursor.ml.depends
+# Target: cursor.d.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:cursor.d.cmo, file:cursor.ml, implem, ocaml, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), quiet, syntax(camlp4o), thread, traverse }
+ocamlfind ocamlc -c -warn-error +a-4-33-34-40-41-42-43-44 -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck -syntax camlp4o -o cursor.d.cmo cursor.ml
 # Target: server.d.byte, tags: { byte, debug, dont_link_with, extension:byte, file:server.d.byte, link, ocaml, package(async), package(oUnit), package(pa_ounit), package(pa_ounit.syntax), package(qcheck), program, quiet, thread, traverse }
-ocamlfind ocamlc assertions.cma -linkpkg -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck aQueue.d.cmo server.d.cmo -o server.d.byte
+ocamlfind ocamlc assertions.cma -linkpkg -g -thread -package async -package oUnit -package pa_ounit -package pa_ounit.syntax -package qcheck aQueue.d.cmo cursor.d.cmo server.d.cmo -o server.d.byte
 # Compilation successful.

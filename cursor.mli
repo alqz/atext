@@ -35,6 +35,8 @@ val r : t -> t
  * and the line lengths, see Guardian. *)
 val move : t -> int -> int -> t
 
+val string_of_id : id -> string
+
 (* A question: do we want to be able to manage the
  * cursor's relative position to state in here?
  * My answer, for now, is no, because we want to
