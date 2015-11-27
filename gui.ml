@@ -16,10 +16,15 @@ let rec displaycursors (cursors : (int*int) list) : unit =
   | (y,x)::t ->
     begin
       let y' = y - !offset in
-      let i = mvinch y' x in
-      ignore(delch()); (* delete the original character *)
-      ignore(insch(i)); (*replace with a highlighted character *)
-      displaycursors t
+      if ((0 <= y') && (y' <= 23) && (0 <= x) && (x <= 79)) then
+      begin
+        let i = mvinch y' x in
+        ignore(delch()); (* delete the original character *)
+        ignore(insch(i)); (*replace with a highlighted character *)
+        displaycursors t
+      end
+      else
+        ()
     end
 
 (* 24 rows and 80 columns *)
@@ -39,9 +44,10 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list) : unit 
         lines := t
       end
   done;
-  attron(WA.blink);
+  attron(WA.standout);
   displaycursors allcursors;
-  attroff(WA.blink)
+  attroff(WA.standout);
+  ignore(move 23 79) (* TODO: move cursor to suitable location *)
 
 
 let scroll_up () : unit =
