@@ -28,6 +28,7 @@ type t = id * (int * int)
 let unpack ((id, (x, y)) : t) : id * (int * int) = id, (x, y)
 
 let gen_id : unit -> id = fun _ ->
+  let open Unix in
   let t : Unix.tm = () |> Unix.time |> Unix.localtime in
   let rand : int = Random.int 10000000 in
   (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, rand)
