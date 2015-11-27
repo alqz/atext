@@ -11,10 +11,9 @@ val refreshscreen : string list -> (int * int) list -> unit
 
 (*
 non-blocking get the key typed by the user.
-pass in the coordinates of the user's cursor (y,x)
 '\r' if nothing is typed
 *)
-val poll_keyboard : int -> int -> char
+val poll_keyboard : unit -> char
 
 (* functions below are for debugging *)
 

@@ -65,32 +65,10 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list) : unit 
   (* TODO: move cursor to suitable location *)
   ignore(move 23 79)
 
-let poll_keyboard (y : int) (x : int) : char =
+let poll_keyboard () : char =
   let i = getch() in
   let y' = y - !offset in
-  if (i = Key.up) then
-    begin
-      (* catch scrolling up *)
-      (
-        if (y' = 0) then
-          offset := !offset - 1
-        else
-          ()
-      );
-      Char.chr i (* forward the up key *)
-    end
-  else if (i = Key.down) then
-    begin
-      (* catch scrolling down *)
-      (
-        if (y' = 23) then
-          offset := !offset + 1
-        else
-          ()
-      );
-      Char.chr i (* forward the up key *)
-    end
-  else if (i = Key.backspace) then
+   if (i = Key.backspace) then
     '\b'
   else if (i = Key.enter) then
     '\n'
