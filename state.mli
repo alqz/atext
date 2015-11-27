@@ -26,10 +26,10 @@ val jth : row -> int -> char
 (* Gets all rows. *)
 val rows : t -> row list
 
-val row_to_string : row -> string
-val row_to_char_list : row -> char list
+val string_of_row : row -> string
+val char_list_of_row : row -> char list
 
-(* [insert st c ch] inserts in [st] the char [ch] at cursor [c].
+(* [add st c ch] inserts in [st] the char [ch] at cursor [c].
  * None if no changed occured, for example because of backspace at start. *)
 val add : t -> Cursor.t -> char -> t option
 
