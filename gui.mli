@@ -8,9 +8,6 @@ val init : string list -> unit
 
 val refreshscreen : string list -> (int * int) list -> unit
 
-val scroll_up : unit -> unit
-
-val scroll_down : unit -> unit
 
 (*
 non-blocking get the key typed by the user.
