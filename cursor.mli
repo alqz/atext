@@ -11,6 +11,7 @@ val string_of_id : id -> string
 
 (* Representation of a cursor. *)
 type t
+val unpack : t -> id * (int * int)
 
 (* Generates a random ID for the cursor. Each machine instantiates
  * its own cursor. For the ID to be unique, we use
