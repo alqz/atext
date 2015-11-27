@@ -15,7 +15,7 @@ val scroll_down : unit -> unit
 (* non-blocking get the key typed by the user. '\r' if nothing is typed *)
 val poll_keyboard : unit -> char
 
-(* functions for debugging *)
+(* functions below are for debugging *)
 
 (* pause the screen after a call to refreshcreen to see the results *)
 val pausescreen : unit -> unit
