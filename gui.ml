@@ -72,9 +72,32 @@ let scroll_up () : unit =
 let scroll_down () : unit =
   ()
 
-let poll_keyboard () : char =
+let poll_keyboard (y : int) (x : int) : char =
   let i = getch() in
-  if (i = Key.backspace) then
+  let y' = y - !offset in
+  if (i = Key.up) then
+    begin
+      (* catch scrolling up *)
+      (
+        if (y' = 0) then
+          offset := !offset - 1
+        else
+          ()
+      );
+      Char.chr i (* forward the up key *)
+    end
+  else if (i = Key.down) then
+    begin
+      (* catch scrolling down *)
+      (
+        if (y' = 23) then
+          offset := !offset + 1
+        else
+          ()
+      );
+      Char.chr i (* forward the up key *)
+    end
+  else if (i = Key.backspace) then
     '\b'
   else if (i = Key.enter) then
     '\n'

@@ -12,13 +12,17 @@ val scroll_up : unit -> unit
 
 val scroll_down : unit -> unit
 
-(* non-blocking get the key typed by the user. '\r' if nothing is typed *)
-val poll_keyboard : unit -> char
+(*
+non-blocking get the key typed by the user.
+pass in the coordinates of the user's cursor (y,x)
+'\r' if nothing is typed
+*)
+val poll_keyboard : int -> int -> char
 
 (* functions below are for debugging *)
 
 (* pause the screen after a call to refreshcreen to see the results *)
 val pausescreen : unit -> unit
 
-(* adjust the offset (vertial scrolling) *)
+(* adjust the offset (vertical scrolling) *)
 val setoffset : int -> unit
