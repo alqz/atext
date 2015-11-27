@@ -1,9 +1,9 @@
 (* instruction.mli
- * Updated 151109 by Albert Zhang
+ * Updated 151126 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
-type dir
+type dir = Up | Down | Left | Right
 
 type operation =
   | Add of char

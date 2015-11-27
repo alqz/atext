@@ -1,5 +1,5 @@
 (* guardian.mli
- * Updated 151109 by Albert Zhang
+ * Updated 151126 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
@@ -13,15 +13,19 @@ val opened : State.t ref
 
 exception OpenedTaken
 
-(* Pen basically updates the state using the instruction. *)
-val pen : State.t -> Instruction.t -> State.t
-val pen_multi : State.t -> Instruction.t list -> State.t
+(* Pen basically updates the state using the instruction.
+ * The bool at the end indicates whether a change was made. *)
+val pen_check : State.t -> Instruction.t -> State.t * bool
+val pen_filter : State.t -> Instruction.t list -> State.t * Instruction.t list
 
 (* Receive a list of instructions and update state using them. *)
 val dictate : State.t -> Instruction.t list Deferred.t -> State.t
 
 (* Same as pen, but uses the open State.t ref. *)
-val pen_open : Instruction.t -> State.t
+val update_check : Instruction.t -> bool
+val update_filter : Instruction.t list -> Instruction.t list
+
+val dictate_open : Instruction.t list Deferred.t -> Instruction.t list Deferred.t
 
 (* The changes that are of other files, waiting to be made. *)
 val waiting : (File.name * (Instruction.t list)) list ref
