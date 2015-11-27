@@ -20,9 +20,9 @@ type t = {
 }
 
 (* ith row. *)
-val ith : t -> int -> row
+val ith : t -> int -> row option
 (* jth column of row. *)
-val jth : row -> int -> char
+val jth : row -> int -> char option
 (* Gets all rows. *)
 val rows : t -> row list
 
@@ -41,8 +41,10 @@ val dec : t -> Cursor.t -> t option
 val up : t -> Cursor.t -> t option
 val down : t -> Cursor.t -> t option
 
-(* [new_cursor st id] creates a new cursor with [id] in state [st]. *)
-val new_cursor : t -> Cursor.id -> t
+(* [new_cursor st] creates a new cursor in state [st]. *)
+val new_cursor : t -> t
+(* Also gives the cursor itself. *)
+val new_cursor_get : t -> t * Cursor.t
 
 (* [get_cursor st id] returns the cursor with [id], if it exists in [st].
  * Returns None if no cursor with [id] in [st] *)

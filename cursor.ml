@@ -17,7 +17,7 @@ let rec p_string_of_int (padded_length : int) (input : int) : string =
   | 0 -> ""
   | _ -> let digit : int = (abs input) mod 10 in
     (p_string_of_int (padded_length - 1) (input / 10)) ^ (string_of_int digit)
-  
+
 let string_of_id (yyyy, mo, dd, hh, mi, ss, numbers : id) : string =
   (p_string_of_int 4 yyyy) ^ (p_string_of_int 2 mo) ^ (p_string_of_int 2 dd) ^
   (p_string_of_int 2 hh) ^ (p_string_of_int 2 mi) ^ (p_string_of_int 2 ss) ^
@@ -25,8 +25,11 @@ let string_of_id (yyyy, mo, dd, hh, mi, ss, numbers : id) : string =
 
 type t = id * (int * int)
 
+let unpack ((id, (x, y)) : t) : id * (int * int) = id, (x, y)
+
 let gen_id : unit -> id = fun _ ->
-  let t : Unix.tm = () |> Unix.time |> localtime in
+  let open Unix in
+  let t : Unix.tm = () |> Unix.time |> Unix.localtime in
   let rand : int = Random.int 10000000 in
   (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, rand)
 
@@ -45,4 +48,4 @@ let move ((id, (x, y)) : t) (i : int) (j : int) : t =
 let get_id ((id, (_, _)) : t) : id = id
 
 let string_of_t ((id, (x, y)) : t) : string =
-  string_of_id ^ "-" ^ (string_of_int x) ^ "-" ^ (string_of_int y)
+  (string_of_id id) ^ "-" ^ (string_of_int x) ^ "-" ^ (string_of_int y)

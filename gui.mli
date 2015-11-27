@@ -6,10 +6,19 @@
 
 val init : string list -> unit
 
+val refreshscreen : string list -> (int * int) list -> unit
+
 val scroll_up : unit -> unit
 
 val scroll_down : unit -> unit
 
-(* y coordinate before x coordinate *)
-val add_char_at : int -> int -> unit
+(* non-blocking get the key typed by the user. '\r' if nothing is typed *)
+val poll_keyboard : unit -> char
 
+(* functions for debugging *)
+
+(* pause the screen after a call to refreshcreen to see the results *)
+val pausescreen : unit -> unit
+
+(* adjust the offset (vertial scrolling) *)
+val setoffset : int -> unit
