@@ -1,7 +1,8 @@
 open Curses
 let win = initscr()
 let offset = ref 0
-
+let y_prev = ref 0
+let x_prev = ref 0
 let init (args : string list) : unit =
   let _ = (keypad win true) in ();
   let _ = (nodelay win true) in ();
@@ -39,7 +40,27 @@ let rec displaycursors (cursors : (int*int) list) : unit =
 (* 24 rows and 80 columns *)
 (* completely redraws the whole screen *)
 (* takes into consideration the vertical scrolling *)
-let refreshscreen (alllines : string list) (allcursors : (int*int) list) : unit =
+let refreshscreen (alllines : string list) (allcursors : (int*int) list)
+                  (y_new : int) (x_new : int) : unit =
+  (* vertical scrolling *)
+
+  (* scroll up *)
+  let at_top = ((!y_prev - !offset) = 0) in
+  (
+  if (at_top && (y_new < !y_prev)) then
+    offset := !offset - 1
+  else
+    ()
+  );
+
+  let at_bottom = ((!y_prev - !offset) = 23) in
+  (
+  if (at_tbottom && (y_new > !y_prev)) then
+    offset := !offset + 1
+  else
+    ()
+  );
+
   clear();
   let lines = ref alllines in
   (* discard lines above the current view *)
@@ -67,7 +88,6 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list) : unit 
 
 let poll_keyboard () : char =
   let i = getch() in
-  let y' = y - !offset in
    if (i = Key.backspace) then
     '\b'
   else if (i = Key.enter) then

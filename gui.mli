@@ -6,7 +6,12 @@
 
 val init : string list -> unit
 
-val refreshscreen : string list -> (int * int) list -> unit
+(*
+Takes in all lines
+all cursors (absolute)
+user's cursor position (absolute)
+*)
+val refreshscreen : string list -> (int * int) list -> int -> int -> unit
 
 
 (*
