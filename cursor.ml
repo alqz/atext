@@ -45,6 +45,9 @@ let r ((id, (x, y)) : t) : t = id, (x + 1, y)
 let move ((id, (x, y)) : t) (i : int) (j : int) : t =
   (id, (x + i, y + j))
 
+let zero ((id, (_, _)) : t) : t =
+  (id, (0, 0))
+
 let get_id ((id, (_, _)) : t) : id = id
 
 let string_of_t ((id, (x, y)) : t) : string =

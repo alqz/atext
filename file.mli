@@ -17,6 +17,9 @@ val folder : string ref
 
 exception FileNotFound
 
+val name_of_string : string -> name
+val string_of_name : name -> string
+
 (* Creates a file using name.
  * Remember to put the file in the folder as well as return it. *)
 val create : name -> t

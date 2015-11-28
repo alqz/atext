@@ -33,7 +33,7 @@ val waiting : (File.name * (Instruction.t list)) list ref
 (* Looks at a list of instructions. For all of them that have
  * the name passed in, we return. For all that do not, we
  * add to edits. *)
-val filter : Instruction.t list -> name -> Instruction.t list
+val filter : Instruction.t list -> File.name -> Instruction.t list
 
 (* Process a file. If there are edits to be made, makes them now. *)
 val load : File.t -> State.t

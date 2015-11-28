@@ -3,7 +3,13 @@
  * For ATEXT text-editor project.
  *)
 
-let pen_check (st : State.t) (it : Instruction.t) : bool =
+let me : Cursor.id ref =
+  ref (gen_id ())
+
+let opened : State.t ref =
+  ref (instantiate !me None None)
+
+let pen_check (st : State.t) (it : Instruction.t) : State.t * bool =
   if it.file = st.get_name then
     match it.op with
     | Add ch -> begin match State.add st it.cursor ch with
@@ -36,3 +42,14 @@ let pen_filter (st : State.t) (itl : Instruction.t list) =
   	  | None -> (st, passed)
     ) (st, []) itl in
   st', List.rev_append itl' []
+
+let update_check (it : Instruction.t) : bool =
+  let st, b = pen_check !opened it in
+  (* If true, update the GUI? *)
+  opened := st; b
+
+(* Inits a new cursor. Basically, inits everything. *)
+let open (fn : File.name) : unit =
+  let ft : File.t = fn |> File.open_file in
+  let cid : Cursor.id = Cursor.gen_id () in
+  me := cid; opened := (State.instantiate cid ft.data fn)

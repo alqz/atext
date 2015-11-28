@@ -221,5 +221,17 @@ let add (st : t) (cid : Cursor.id) (ch : char) : t option =
   else
     None
 
-let new_state : unit -> State.t = fun _ ->
-  {cursors = []; text = [""]; origin = "untitled"}
+let blank : t = {cursors = []; text = [""]; origin = "untitled"}
+
+let instantiate (cid  : Cursor.id)
+                (text : string)
+                (fn   : File.name) : t =
+  
+let instantiate_from_cursor_id (cid : Cursor.id) : t = fun _ ->
+  {cursors = [Cursor.new_cursor_from_id cid]; text = [""]; origin = "untitled"}
+
+(* Logically not needed. How would you tell other editors to do the same? *)
+let zero_cursors (st : t) : t =
+  let new_cursors : Cursor.t list = List.fold_left (fun cl c ->
+    Cursor.zero c :: cl) [] st.cursors in
+  {cursors = new_cursors; text = st.text; origin = st.origin}
