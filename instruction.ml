@@ -8,7 +8,7 @@ type dir = Up | Down | Left | Right
 type operation =
   | Add of char
   | Move of dir
-  | New of Cursor.id
+  | New
 
 (* Instruction is an operation and the string ID of the cursor. *)
 type t = {
