@@ -4,6 +4,15 @@
  * functions as they are called.
  *)
 
+type input =
+  | Leave
+  | Backspace
+  | Delete
+  | Enter
+  | Up | Down | Left | Right
+  | Character of char
+  | Nothing
+
 val init : string list -> unit
 
 (*
@@ -16,9 +25,9 @@ val refreshscreen : string list -> (int * int) list -> int -> int -> unit
 
 (*
 non-blocking get the key typed by the user.
-'\r' if nothing is typed
+
 *)
-val poll_keyboard : unit -> char
+val poll_keyboard : unit -> input
 
 (* functions below are for debugging *)
 

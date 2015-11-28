@@ -1,4 +1,14 @@
 open Curses
+
+type input =
+  | Leave
+  | Backspace
+  | Delete
+  | Enter
+  | Up | Down | Left | Right
+  | Character of char
+  | Nothing
+
 let win = initscr()
 let offset = ref 0
 let y_prev = ref 0
@@ -6,7 +16,9 @@ let x_prev = ref 0
 let init (args : string list) : unit =
   let _ = (keypad win true) in ();
   let _ = (nodelay win true) in ();
-  let _ = noecho () in ()
+  let _ = noecho() in ();
+  let _ = start_color() in ();
+  let _ = init_pair 1 Color.red Color.black in ()
 
 (*
 Helper function to display one line.
@@ -53,13 +65,16 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list)
     ()
   );
 
+  (* scroll down *)
   let at_bottom = ((!y_prev - !offset) = 23) in
   (
-  if (at_tbottom && (y_new > !y_prev)) then
+  if (at_bottom && (y_new > !y_prev)) then
     offset := !offset + 1
   else
     ()
   );
+
+
 
   clear();
   let lines = ref alllines in
@@ -83,21 +98,37 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list)
   attron(WA.standout);
   displaycursors allcursors;
   attroff(WA.standout);
-  (* TODO: move cursor to suitable location *)
-  ignore(move 23 79)
+  (* move cursor to user's cursor position *)
+  ignore(move y_new x_new);
+  attron(A.color_pair(1));
+  let i = inch() in
+  ignore(delch()); (* delete the original character *)
+  ignore(insch(i)); (* replace with a colored character *)
+  attroff(A.color_pair(1));
+  y_prev := y_new (* should probably move this after display cursor *)
 
-let poll_keyboard () : char =
+let poll_keyboard () : input =
   let i = getch() in
-   if (i = Key.backspace) then
-    '\b'
+  if (i = Key.backspace) then
+    Backspace
   else if (i = Key.enter) then
-    '\n'
+    Enter
   else if (i = 330) then (* delete key *)
-    Char.chr 127 (* ASCII for delete *)
+    Delete
+  else if (i = Key.up) then
+    Up
+  else if (i = Key.down) then
+    Down
+  else if (i = Key.left) then
+    Left
+  else if (i = Key.right) then
+    Right
+  else if (i = 27) (* the Escape key *) then
+    Leave
   else if ((i >= 0) && (i <= 255)) then (* forward all other characters *)
-    Char.chr i
+    Character(Char.chr i)
   else (* Reject everything else, including -1 which is no key typed *)
-    '\r'
+    Nothing
 
 (* For testing only *)
 let pausescreen () : unit =
