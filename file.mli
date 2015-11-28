@@ -1,34 +1,24 @@
 (* file.mli
- * Updated 151109 by Albert Zhang
+ * Updated 151127 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
 (* File name. *)
 type name
+type path
 
-(* A file. *)
-type t = {
-  n : name;
-  data : string
-}
+exception FileNotFound of string
 
-(* The designated folder that we synchronize. *)
-val folder : string ref
+(* FileNotFound if doesn't exist! *)
+val open_lines : name -> string list
 
-exception FileNotFound
+(* File with name is created if doesn't exist. *)
+val save_to : name -> string -> unit
+val save_lines : name -> string list -> unit
 
-(* Creates a file using name.
- * Remember to put the file in the folder as well as return it. *)
-val create : name -> t
+val file_of_string : string -> name
 
-(* Opens the file with name. Raise FileNotFound if no file file. *)
-val open_file : name -> t
+val create : name -> name
+val default : unit -> name
 
-(* Opens all in folder. *)
-val open_all : unit -> t list
-
-(* Calls open on a list of names. Also, may raise FileNotFound. *)
-val open_batch : name list -> t list
-
-(* Overwrite t on the drive. *)
-val save : t -> unit
+val designated : path ref

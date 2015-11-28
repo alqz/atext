@@ -29,6 +29,9 @@ val add_cursor : t -> Cursor.id -> t option
  * Returns None if no cursor with [id] in [st] *)
 val get_cursor : t -> Cursor.id -> Cursor.t option
 val get_cursors : t -> Cursor.t list
+(* Returns all the cursors that don't match the id.
+ * Does not require id to be in state. *)
+val get_other_cursors : t -> Cursor.id -> Cursor.t list
 
 (* ith row. *)
 val ith : t -> int -> row option
@@ -51,3 +54,11 @@ val inc : t -> Cursor.id -> t option
 val dec : t -> Cursor.id -> t option
 val up : t -> Cursor.id -> t option
 val down : t -> Cursor.id -> t option
+
+(* Creating a new state. *)
+val blank : t
+val instantiate : Cursor.id -> File.name option -> t
+
+(* For debug and for transmission. *)
+(* val string_of_t : t -> string *)
+(* val decode : string -> t *)

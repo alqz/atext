@@ -11,23 +11,9 @@ type t = {
   origin  : File.name;
 }
 
-let get_name (st : t) : File.name = st.name
+let get_name (st : t) : File.name = st.origin
 
 let get_cursors (st : t) : Cursor.t list = st.cursors
-
-let add_cursor (st : t) (cid : Cursor.id) : t option =
-  match get_cursor st cid with
-  | None -> let new_cursors = (Cursor.new_cursor_from_id cid) :: st.cursors in
-    {cursors = new_cursors; text = st.text; origin = st.origin}
-  | Some _ -> None
-
-let new_cursor_get (st : t) : t * Cursor.id =
-  let cid : Cursor.id = Cursor.gen_id () in
-  let c : Cursor.t = Cursor.new_cursor_from_id cid in
-  {cursors = c :: st.cursors; text = st.text; origin = st.origin}, cid
-
-let new_cursor (st : t) : t =
-  let (nst, cid) = new_cursor_get st in nst
 
 let get_cursor (st : t) (cid : Cursor.id) : Cursor.t option =
   let cs : Cursor.t list = st.cursors in
@@ -38,6 +24,23 @@ let get_other_cursors (st : t) (cid : Cursor.id) : Cursor.t list =
   let cs : Cursor.t list = st.cursors in
   let idnotmatch (c : Cursor.t) : bool = not (Cursor.get_id c = cid) in
   List.filter idnotmatch cs
+
+let add_cursor (st : t) (cid : Cursor.id) : t option =
+  match get_cursor st cid with
+  | None ->
+    let new_cursors =
+      (Cursor.new_cursor_from_id cid) :: st.cursors in
+    Some {cursors = new_cursors; text = st.text; origin = st.origin}
+  | Some _ -> None
+
+let new_cursor_get (st : t) : t * Cursor.id =
+  let cid : Cursor.id = Cursor.gen_id () in
+  let c : Cursor.t = Cursor.new_cursor_from_id cid in
+  {cursors = c :: st.cursors; text = st.text; origin = st.origin}, cid
+
+let new_cursor (st : t) : t =
+  let (nst, cid) = new_cursor_get st in nst
+
 
 (* Should only be used in this module if you are sure that None
  * will never occur. *)
@@ -72,7 +75,7 @@ let replace_cursor (st : t) (old_cid : Cursor.id) (new_c : Cursor.t option)
   | None -> None
   | Some new_c' ->
     let new_cursors : Cursor.t list =
-      new_c' :: (get_other_cursors st id) in
+      new_c' :: (get_other_cursors st old_cid) in
     Some {cursors = new_cursors; text = st.text; origin = st.origin}
 
 let inc (st : t) (cid : Cursor.id) : t option =
@@ -176,7 +179,7 @@ let add_backspace (st : t) (cid : Cursor.id) : t option =
 
 let add_return (st : t) (cid : Cursor.id) : t option =
   match get_cursor st cid with
-  | Some c -> 
+  | Some c ->
     let id, x, y = Cursor.id c, Cursor.x c, Cursor.y c in
     let cur : row = coerce (ith st y) in
     let (cur1, cur2) : string * string = cut_at cur x in
@@ -189,13 +192,9 @@ let add_return (st : t) (cid : Cursor.id) : t option =
   | None -> None
 
 let add_delete (st : t) (cid : Cursor.id) : t option =
-  match get_cursor st cid with
-  | Some c -> begin
-      match inc st c with
-      | None -> None
-      | Some st' -> add_backspace st' c
-    end
-  | None -> None
+    match inc st cid with
+    | None -> None
+    | Some st' -> add_backspace st' cid
 
 (* [add st c ch] inserts in [st] the char [ch] at cursor [c].
  * None if no changed occured, for example because of backspace at start. *)
@@ -221,5 +220,27 @@ let add (st : t) (cid : Cursor.id) (ch : char) : t option =
   else
     None
 
-let new_state : unit -> State.t = fun _ ->
-  {cursors = []; text = [""]; origin = "untitled"}
+let rec read (s : string) : row list =
+  if String.contains s '\n' then
+    let i : int = String.index s '\n' in
+    let cut : string = String.sub s 0 i in
+    let len : int = String.length s in
+    let remainder : string = String.sub s (i + 1) (len - (i + 1)) in
+    cut :: read remainder
+  else [s]
+
+let blank : t =
+  {cursors = []; text = [""]; origin = File.default ()}
+
+let instantiate (cid  : Cursor.id)
+                (fn   : File.name option) : t =
+  let (file, data) : File.name * row list = match fn with
+    | None -> File.default (), [""]
+    | Some fn -> fn, File.open_lines fn
+  in {cursors = [Cursor.new_cursor_from_id cid]; text = data; origin = file}
+
+(* Logically not needed. How would you tell other editors to do the same? *)
+let zero_cursors (st : t) : t =
+  let new_cursors : Cursor.t list = List.fold_left (fun cl c ->
+    Cursor.zero c :: cl) [] st.cursors in
+  {cursors = new_cursors; text = st.text; origin = st.origin}

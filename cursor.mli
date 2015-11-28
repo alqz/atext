@@ -7,7 +7,6 @@
 
 (* The id of the cursor. *)
 type id
-val string_of_id : id -> string
 
 (* Representation of a cursor. *)
 type t
@@ -23,6 +22,13 @@ val gen_id : unit -> id
 val new_cursor_from_id : id -> t
 val new_cursor : unit -> t
 
+(* Mainly for transmission purposes. *)
+val string_of_id : id -> string
+
+exception FaultyId of string
+
+val id_of_string : string -> id
+
 (* Move one unit in the directions. *)
 val u : t -> t
 val d : t -> t
@@ -33,6 +39,7 @@ val r : t -> t
  * Note that this does not care about state, it only adjusts the
  * coordinates. *)
 val move : t -> int -> int -> t
+val zero : t -> t
 
 val get_id : t -> id
 

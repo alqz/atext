@@ -1,2 +1,2 @@
-compile.opam_packages=curses, async
+compile.opam_packages=curses, async, str
 compile.thread=true
