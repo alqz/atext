@@ -35,6 +35,7 @@ let line_of_instruction instruction =
 
 let instruction_of_line line =
   let open Instruction in
+
   let info_list = Str.split (Str.regexp " -> ") line in
   match info_list with
   | [id; cmd] ->
