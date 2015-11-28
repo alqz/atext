@@ -52,9 +52,10 @@ val dec : t -> Cursor.id -> t option
 val up : t -> Cursor.id -> t option
 val down : t -> Cursor.id -> t option
 
+(* Creating a new state. *)
 val blank : t
 val instantiate : Cursor.id -> string option -> File.name option -> t
 
 (* For debug and for transmission. *)
-val string_of_t : t -> string
-val decode : string -> t
+(* val string_of_t : t -> string *)
+(* val decode : string -> t *)

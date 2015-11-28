@@ -43,13 +43,30 @@ let pen_filter (st : State.t) (itl : Instruction.t list) =
     ) (st, []) itl in
   st', List.rev_append itl' []
 
+(* Should only be used in this module if you are sure that None
+ * will never occur. *)
+let coerce (ao : 'a option) : 'a =
+  match ao with
+  | Some a -> a
+  | None -> failwith "Bad coercion!"
+
 let update_check (it : Instruction.t) : bool =
   let st, b = pen_check !opened it in
-  (* If true, update the GUI? *)
-  opened := st; b
+  opened := st;
+  begin match b with
+    | false -> ()
+    | true -> (* update the GUI *)
+      let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
+      let my_coords : int * int = Cursor.x my_cursor, Cursor.y my_cursor in
+      let other_cursors : Cursor.t list = State.get_other_cursors st !me in
+      let other_coords : (int * int) list = List.fold_left (fun cl c ->
+        (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in
+      let rows_as_strings : string list = List.map State.string_of_row
+        (State.rows st) in
+      Gui.refresh_screen rows_as_strings other_coords my_coords
+  end; b
 
-(* Inits a new cursor. Basically, inits everything. *)
+(* Opens from file name. Inits a new cursor. Basically, inits everything. *)
 let open (fn : File.name) : unit =
-  let ft : File.t = fn |> File.open_file in
   let cid : Cursor.id = Cursor.gen_id () in
-  me := cid; opened := (State.instantiate cid ft.data fn)
+  me := cid; opened := (State.instantiate cid fn)

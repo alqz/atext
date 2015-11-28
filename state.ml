@@ -221,14 +221,24 @@ let add (st : t) (cid : Cursor.id) (ch : char) : t option =
   else
     None
 
-let blank : t = {cursors = []; text = [""]; origin = "untitled"}
+let rec read (s : string) : row list =
+  if String.contains s '\n' then
+    let i : int = String.index s '\n' in
+    let cut : string = String.sub s 0 i in
+    let len : int = String.length s in
+    let remainder : string = String.sub s (i + 1) (len - (i + 1)) in
+    cut :: read remainder
+  else s
+
+let blank : t =
+  {cursors = []; text = [""]; origin = File.untitled ()}
 
 let instantiate (cid  : Cursor.id)
-                (text : string)
-                (fn   : File.name) : t =
-  
-let instantiate_from_cursor_id (cid : Cursor.id) : t = fun _ ->
-  {cursors = [Cursor.new_cursor_from_id cid]; text = [""]; origin = "untitled"}
+                (fn   : File.name option) : t =
+  let (file, data) : File.name * row list = match fn with
+    | None -> File.untitled (), [""]
+    | Some fn -> fn, File.open_lines fn
+  in {cursors = [Cursor.new_cursor_from_id cid]; text = data; origin = file}
 
 (* Logically not needed. How would you tell other editors to do the same? *)
 let zero_cursors (st : t) : t =
