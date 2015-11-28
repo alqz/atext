@@ -53,7 +53,7 @@ let rec displaycursors (cursors : (int*int) list) : unit =
 (* completely redraws the whole screen *)
 (* takes into consideration the vertical scrolling *)
 let refreshscreen (alllines : string list) (allcursors : (int*int) list)
-                  (y_new : int) (x_new : int) : unit =
+                  (y_new, x_new : int * int) : unit =
   (* vertical scrolling *)
 
   (* scroll up *)
