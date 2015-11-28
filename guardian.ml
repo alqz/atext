@@ -4,13 +4,14 @@
  *)
 
 let me : Cursor.id ref =
-  ref (gen_id ())
+  ref (Cursor.gen_id ())
 
+(* The file that is currently open as a state. *)
 let opened : State.t ref =
-  ref (instantiate !me None None)
+  ref (State.instantiate !me None)
 
 let pen_check (st : State.t) (it : Instruction.t) : State.t * bool =
-  if it.file = st.get_name then
+  if it.file = State.get_name st then
     match it.op with
     | Add ch -> begin match State.add st it.cursor ch with
     	| Some st' -> (st', true)
@@ -33,13 +34,14 @@ let pen_check (st : State.t) (it : Instruction.t) : State.t * bool =
     | New -> begin match State.add_cursor st it.cursor with
         | Some st' -> (st', true)
         | None -> (st, false)
+      end
   else (st, false)
 
 let pen_filter (st : State.t) (itl : Instruction.t list) =
   let (st', itl') = List.fold_left (fun (st, passed) it ->
       match pen_check st it with
-  	  | Some st' -> (st', it :: passed)
-  	  | None -> (st, passed)
+  	  | st', true -> (st', it :: passed)
+  	  | st', false -> (st', passed)
     ) (st, []) itl in
   st', List.rev_append itl' []
 
@@ -63,10 +65,10 @@ let update_check (it : Instruction.t) : bool =
         (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in
       let rows_as_strings : string list = List.map State.string_of_row
         (State.rows st) in
-      Gui.refresh_screen rows_as_strings other_coords my_coords
+      Gui.refreshscreen rows_as_strings other_coords my_coords
   end; b
 
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)
-let open (fn : File.name) : unit =
+let unfold (fn : File.name) : unit =
   let cid : Cursor.id = Cursor.gen_id () in
   me := cid; opened := (State.instantiate cid fn)

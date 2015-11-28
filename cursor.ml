@@ -23,9 +23,27 @@ let string_of_id (yyyy, mo, dd, hh, mi, ss, numbers : id) : string =
   (p_string_of_int 2 hh) ^ (p_string_of_int 2 mi) ^ (p_string_of_int 2 ss) ^
   (p_string_of_int 7 numbers)
 
+exception FaultyId of string
+
+let id_of_string (s : string) : id =
+  let l : int = String.length s in
+  if not (l = 4 + 2 + 2 + 2 + 2 + 2 + 7) then
+    raise (FaultyId "Too short! Needs to be exactly 21 characters long!")
+  else
+    String.sub s 0 4 |> int_of_string,
+    String.sub s 4 2 |> int_of_string,
+    String.sub s 6 2 |> int_of_string,
+    String.sub s 8 2 |> int_of_string,
+    String.sub s 10 2 |> int_of_string,
+    String.sub s 12 2 |> int_of_string,
+    String.sub s 14 7 |> int_of_string
+
+
 type t = id * (int * int)
 
-let unpack ((id, (x, y)) : t) : id * (int * int) = id, (x, y)
+let id ((id, (x, y)) : t) : id = id
+let x ((id, (x, y)) : t) : int = x
+let y ((id, (x, y)) : t) : int = y
 
 let gen_id : unit -> id = fun _ ->
   let open Unix in
