@@ -18,9 +18,9 @@ val init : string list -> unit
 (*
 Takes in all lines
 all cursors (absolute)
-user's cursor position (absolute)
+user's cursor position (absolute) y first and then x
 *)
-val refreshscreen : string list -> (int * int) list -> int -> int -> unit
+val refreshscreen : string list -> (int * int) list -> (int * int) -> unit
 
 
 (*
