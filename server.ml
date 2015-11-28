@@ -1,16 +1,5 @@
 open Async.Std
 
-type client_info = {
-  server  : string;
-  port    : int;
-  reader  : Async.Std.Reader.t;
-  writer  : Async.Std.Writer.t;
-}
-type server_info = {
-  port : int;
-  mutable clients : (string * Async.Std.Reader.t * Async.Std.Writer.t) list;
-}
-
 type stat =
   | Empty
   | Waiting_client
@@ -23,11 +12,17 @@ let status = ref Empty
 
 (* A queue of incoming instructions pending to be processed by the editor *)
 let pending = AQueue.create()
+
+(*
+ * client: destinations = [server writing buffer]
+ * server: destinations = [client#1 writing buffer; client#2 writing buffer...]
+ *)
 let destinations = ref []
 
 let line_of_instruction instruction =
   let open Instruction in
-  Cursor.string_of_id instruction.cursor ^ " -> " ^
+  let str_id = Cursor.string_of_id instruction.cursor in
+  str_id ^ " -> " ^
   begin match instruction.op with
   | Add c -> "add " ^ (Char.escaped c)
   | Move dir -> "move " ^
@@ -36,31 +31,49 @@ let line_of_instruction instruction =
     | Down -> "down"
     | Left -> "left"
     | Right -> "right" end
-  | New id -> "new " ^ Cursor.string_of_id id end ^ "\n"
+  | New -> "new" end ^ "\n"
 
 let instruction_of_line line =
-  let open Str in
-(*  let info_list = split (regexp " -> " line) in
+  let open Instruction in
+
+  let info_list = Str.split (Str.regexp " -> ") line in
   match info_list with
   | [id; cmd] ->
-      begin match split (regexp " " cmd) with
+      let id_str = Cursor.id_of_string id in
+      let file_slot = failwith "What do with file initailization?" in
+      begin match Str.split (Str.regexp " ") cmd with
       | ["add"; c] when String.length c = 1 -> {
             op = Add (String.get c 0);
-            cursor = ;
-
+            cursor = id_str;
+            file = file_slot;
           }
-      | ["move"; "up"] -> {}
-      | ["move"; "down"] -> {}
-      | ["move"; "left"] -> {}
-      | ["move"; "right"] -> {}
-      | ["new"; id2] -> {op = New } end
-
+      | ["move"; "up"] -> {
+            op = Move Up;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | ["move"; "down"] -> {
+            op = Move Down;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | ["move"; "left"] -> {
+            op = Move Left;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | ["move"; "right"] -> {
+            op = Move Right;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | ["new"; id2] -> {
+            op = New;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | _ -> failwith "badly formatted instruction" end
   | _ -> failwith "badly formatted instruction"
-  let cmd_list = split (regexp " " )
-  {
-
-  } *)
-  failwith "unimplemented"
 
 let send instruction =
   match !status with
