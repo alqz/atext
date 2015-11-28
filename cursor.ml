@@ -30,14 +30,15 @@ let id_of_string (s : string) : id =
   if not (l = 4 + 2 + 2 + 2 + 2 + 2 + 7) then
     raise (FaultyId "Too short! Needs to be exactly 21 characters long!")
   else
-    String.sub s 0 4 |> int_of_string,
-    String.sub s 4 2 |> int_of_string,
-    String.sub s 6 2 |> int_of_string,
-    String.sub s 8 2 |> int_of_string,
-    String.sub s 10 2 |> int_of_string,
-    String.sub s 12 2 |> int_of_string,
-    String.sub s 14 7 |> int_of_string
-
+  let y : int = String.sub s 0 4 |> int_of_string in
+  let m : int = String.sub s 4 2 |> int_of_string in
+  let d : int = String.sub s 6 2 |> int_of_string in
+  let h : int = String.sub s 8 2 |> int_of_string in
+  let i : int = String.sub s 10 2 |> int_of_string in
+  let s : int = String.sub s 12 2 |> int_of_string in
+  let n : int = String.sub s 14 7 |> int_of_string in
+  (* Later: write code to check that these are each valid. *)
+  (y, m, d, h, i, s, n)
 
 type t = id * (int * int)
 
