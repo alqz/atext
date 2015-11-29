@@ -1,5 +1,5 @@
 (* state.ml
- * Updated 151125 by Albert Zhang
+ * Updated 151129 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
@@ -10,6 +10,8 @@ type t = {
   text    : row list;
   origin  : File.name;
 }
+
+(* CURSOR GETTERS AND SETTERS *)
 
 let get_name (st : t) : File.name = st.origin
 
@@ -41,7 +43,6 @@ let new_cursor_get (st : t) : t * Cursor.id =
 let new_cursor (st : t) : t =
   let (nst, cid) = new_cursor_get st in nst
 
-
 (* Should only be used in this module if you are sure that None
  * will never occur. *)
 let coerce (ao : 'a option) : 'a =
@@ -68,6 +69,8 @@ let rec char_list_of_row (r : row) : char list =
 let (@) (l1 : 'a list) (l2 : 'a list) : 'a list =
   let l1' : 'a list = List.rev_append l1 [] in
   List.rev_append l1' l2
+
+(* FUNCTIONS TO HANDLE MOVEMENT *)
 
 let replace_cursor (st : t) (old_cid : Cursor.id) (new_c : Cursor.t option)
                    : t option =
@@ -129,6 +132,8 @@ let down (st : t) (cid : Cursor.id) : t option =
       else None in
     replace_cursor st id new_c
   | None -> None
+
+(* FUNCTIONS TO HANDLE ADDING *)
 
 (* Warning: throws errors if [i] is not a valid index.
  * Should only be used when [i] is definitely valid. *)
@@ -219,6 +224,8 @@ let add (st : t) (cid : Cursor.id) (ch : char) : t option =
     | None -> None
   else
     None
+
+(* FUNCTIONS TO CREATE STATE *)
 
 let rec read (s : string) : row list =
   if String.contains s '\n' then

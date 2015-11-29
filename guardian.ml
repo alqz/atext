@@ -3,6 +3,8 @@
  * For ATEXT text-editor project.
  *)
 
+exception OpenedTaken
+
 let me : Cursor.id ref =
   ref (Cursor.gen_id ())
 
@@ -71,4 +73,4 @@ let update_check (it : Instruction.t) : bool =
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)
 let unfold (fn : File.name) : unit =
   let cid : Cursor.id = Cursor.gen_id () in
-  me := cid; opened := (State.instantiate cid fn)
+  me := cid; opened := (State.instantiate cid (Some fn))
