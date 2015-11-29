@@ -39,6 +39,7 @@ val r : t -> t
  * Note that this does not care about state, it only adjusts the
  * coordinates. *)
 val move : t -> int -> int -> t
+val ship : t list -> int -> int -> t list
 val zero : t -> t
 
 val get_id : t -> id

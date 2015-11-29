@@ -64,6 +64,9 @@ let r ((id, (x, y)) : t) : t = id, (x + 1, y)
 let move ((id, (x, y)) : t) (i : int) (j : int) : t =
   (id, (x + i, y + j))
 
+let ship (cs : Cursor.t list) i j : t =
+  List.map (fun c -> move c i j) cs
+
 let zero ((id, (_, _)) : t) : t =
   (id, (0, 0))
 
