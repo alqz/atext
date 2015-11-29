@@ -9,8 +9,8 @@ let me : Cursor.id ref =
   ref (Cursor.gen_id ())
 
 (* The file that is currently open as a state. *)
-let opened : State.t ref =
-  ref (State.instantiate !me [""] (File.default ()))
+let opened : State.t option ref =
+  ref None
 
 let pen_check (st : State.t) (it : Instruction.t) : bool =
   if it.file = State.get_name st then
@@ -41,23 +41,41 @@ let coerce (ao : 'a option) : 'a =
   | Some a -> a
   | None -> failwith "Bad coercion!"
 
-let update_check (it : Instruction.t) : bool =
-  match pen_check !opened it with
-  | false -> false
-  | true -> (* update the GUI *)
-    let my_cursor : Cursor.t = coerce (State.get_cursor !opened !me) in
-    let my_coords : int * int = Cursor.x my_cursor, Cursor.y my_cursor in
-    let other_cursors : Cursor.t list = State.get_other_cursors !opened !me in
-    let other_coords : (int * int) list = List.fold_left (fun cl c ->
-      (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in
-    let rows_as_strings : string list = List.map State.string_of_row
-      (State.rows !opened) in
-    Gui.refreshscreen rows_as_strings other_coords my_coords; true
+let update_check (it : Instruction.t)
+                : [> `NothingOpened | `InvalidInstruction | `Success] =
+  match !opened with
+  | Some st -> begin match pen_check st it with
+      | false -> `InvalidInstruction
+      | true -> (* update the GUI *)
+        let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
+        let my_coords : int * int = Cursor.x my_cursor, Cursor.y my_cursor in
+        let other_cursors : Cursor.t list = State.get_other_cursors st !me in
+        let other_coords : (int * int) list = List.fold_left (fun cl c ->
+          (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in
+        let rows_as_strings : string list =
+          List.map State.string_of_row (State.rows st) in
+        Gui.refreshscreen rows_as_strings other_coords my_coords; `Success
+    end
+  | None -> `NothingOpened
 
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)
-let unfold (fn : File.name option) : unit =
-  let cid : Cursor.id = Cursor.gen_id () in
-  let (file, data) : File.name * string list = match fn with
-    | None -> File.default (), [""]
-    | Some fn -> fn, File.open_lines fn
-  in me := cid; opened := (State.instantiate cid data file)
+let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
+  match !opened with
+  | None ->
+    let cid : Cursor.id = Cursor.gen_id () in
+    let (file, data) : File.name * string list = match fn with
+      | None -> File.default (), [""]
+      | Some fn -> fn, File.open_lines fn
+    in me := cid; opened := Some (State.instantiate cid data file); `Success
+  | Some _ -> `OpenedTaken
+
+(* Note that the cid in me is ignored. *)
+let close : unit -> [> `NothingOpened | `Success] = fun _ ->
+  match !opened with
+  | Some st ->
+    let file : File.name = State.get_name st in
+    let rows_as_strings : string list =
+      List.map State.string_of_row (State.rows st) in
+    File.save_lines file rows_as_strings;
+    opened := None; `Success
+  | None -> `NothingOpened
