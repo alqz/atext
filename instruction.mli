@@ -9,6 +9,7 @@ type operation =
   | Add of char
   | Move of dir
   | New
+  | Leave
 
 (* Instruction is an operation and the string ID of the cursor. *)
 type t = {

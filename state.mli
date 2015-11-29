@@ -25,9 +25,9 @@ val get_cursors : t -> Cursor.t list
  * Does not require id to be in state. *)
 val get_other_cursors : t -> Cursor.id -> Cursor.t list
 (* [new_cursor st] creates a new cursor in state [st]. *)
-val new_cursor : t -> t
+val new_cursor : t -> unit
 (* Also gives the cursor itself. *)
-val new_cursor_get : t -> t * Cursor.id
+val new_cursor_get : t -> Cursor.id
 (* Adds a cursor to the state. false if id already exists. *)
 val add_cursor : t -> Cursor.id -> bool
 (* Removes a cursor from the state. false if doesn't exist. *)
@@ -57,7 +57,7 @@ val down : t -> Cursor.id -> bool
 
 (* Creating a new state. *)
 val blank : t
-val instantiate : Cursor.id -> File.name option -> t
+val instantiate : Cursor.id -> string list -> File.name -> t
 
 (* For debug and for transmission. *)
 (* val string_of_t : t -> string *)

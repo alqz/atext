@@ -43,7 +43,7 @@ let del_cursor (st : t) (cid : Cursor.id) : bool =
   match get_cursor st cid with
   | None -> false
   | Some c ->
-    st.cursors <- Cursor.get_other_cursors cid; true
+    st.cursors <- get_other_cursors st cid; true
 
 (* Verified *)
 let new_cursor_get (st : t) : Cursor.id =
@@ -114,10 +114,10 @@ let inc (st : t) (cid : Cursor.id) : bool =
       else if y <= List.length st.text - 1 - 1 then (* within bottom *)
         Some (Cursor.move c (0 - x) 1)
       else None
-    in replace_cursor st id new_c
+    in replace_cursor st cid new_c
 
 (* Verified *)
-let dec (st : t) (cid : Cursor.id) : t option =
+let dec (st : t) (cid : Cursor.id) : bool =
   match get_cursor st cid with
   | None -> false
   | Some c ->
@@ -129,10 +129,10 @@ let dec (st : t) (cid : Cursor.id) : t option =
         let prev_len : int = y - 1 |> ith st |> coerce |> String.length in
         Some (Cursor.move c prev_len (-1))
       else None
-    in replace_cursor st id new_c
+    in replace_cursor st cid new_c
 
 (* Verified *)
-let up (st : t) (cid : Cursor.id) : t option =
+let up (st : t) (cid : Cursor.id) : bool =
   match get_cursor st cid with
   | None -> false
   | Some c ->
@@ -144,10 +144,10 @@ let up (st : t) (cid : Cursor.id) : t option =
           Some (Cursor.u c)
         else Some (Cursor.move c prev_len (-1))
       else None
-    in replace_cursor st id new_c
+    in replace_cursor st cid new_c
 
 (* Verified *)
-let down (st : t) (cid : Cursor.id) : t option =
+let down (st : t) (cid : Cursor.id) : bool =
   match get_cursor st cid with
   | None -> false
   | Some c ->
@@ -159,14 +159,14 @@ let down (st : t) (cid : Cursor.id) : t option =
           Some (Cursor.u c)
         else Some (Cursor.move c next_len 1)
       else None
-    in replace_cursor st id new_c
+    in replace_cursor st cid new_c
 
 (* FUNCTIONS TO HANDLE ADDING *)
 
 (* Gets all cursors whose position is after the current cursor.
  * Raises exception if cid is not in st. *)
 (* Verified *)
-let get_cursors_after (st : State.t) (cid : Cursor.id)
+let get_cursors_after (st : t) (cid : Cursor.id)
                       : Cursor.t list * Cursor.t list =
   let c : Cursor.t = get_cursor st cid |> coerce in
   let x, y = Cursor.x c, Cursor.y c in
@@ -177,7 +177,7 @@ let get_cursors_after (st : State.t) (cid : Cursor.id)
 
 (* Same as above, but limits to same row. *)
 (* Verified *)
-let get_cursors_after_on_row (st : State.t) (cid : Cursor.id)
+let get_cursors_after_on_row (st : t) (cid : Cursor.id)
                              : Cursor.t list * Cursor.t list =
   let c : Cursor.t = get_cursor st cid |> coerce in
   let x, y = Cursor.x c, Cursor.y c in
@@ -188,7 +188,7 @@ let get_cursors_after_on_row (st : State.t) (cid : Cursor.id)
 
 (* Same as above, but not on the same row. *)
 (* Verified *)
-let get_cursors_after_row (st : State.t) (cid : Cursor.id)
+let get_cursors_after_row (st : t) (cid : Cursor.id)
                              : Cursor.t list * Cursor.t list =
   let c : Cursor.t = get_cursor st cid |> coerce in
   let x, y = Cursor.x c, Cursor.y c in
@@ -281,13 +281,12 @@ let add (st : t) (cid : Cursor.id) (ch : char) : bool =
   if ci >= 32 && ci <= 126 then
     match get_cursor st cid with
     | None -> false
-    | Some c ->
-      let x, y = Cursor.x c, Cursor.y c in
+    | Some c -> let x, y = Cursor.x c, Cursor.y c in
       let cur : row = coerce (ith st y) in
       let (safe, nudged) : string * string = cut_at cur x in
       let (before, _, after) : row list * row list * row list =
           triptych st.text y 1 in
-      st.text <- before @ [safe ^ (Char.escaped ch) ^ nudged] @ after in
+      st.text <- before @ [safe ^ (Char.escaped ch) ^ nudged] @ after;
       let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
         get_cursors_after_on_row st cid in
       st.cursors <- unaffected @ (List.map Cursor.r after_on_row);
