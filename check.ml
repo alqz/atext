@@ -27,12 +27,10 @@ let rec check () =
 let _ = check ()
 
 let _ =
-  refreshscreen (["asdfasdfasdf"]) [] (0,0);
-  pausescreen()
+  refreshscreen (["asdfasdfasdf"]) [] (0,0)
 
 let _ =
-  refreshscreen (!testlines) [] (0,0);
-  pausescreen()
+  refreshscreen (["abc123"]) [] (0,0)
 
 
 
