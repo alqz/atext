@@ -17,14 +17,6 @@ type t
 
 val get_name : t -> File.name
 
-(* [new_cursor st] creates a new cursor in state [st]. *)
-val new_cursor : t -> t
-(* Also gives the cursor itself. *)
-val new_cursor_get : t -> t * Cursor.id
-
-(* Adds a cursor to the state. None if id already exists. *)
-val add_cursor : t -> Cursor.id -> t option
-
 (* [get_cursor st id] returns the cursor with [id], if it exists in [st].
  * Returns None if no cursor with [id] in [st] *)
 val get_cursor : t -> Cursor.id -> Cursor.t option
@@ -32,6 +24,14 @@ val get_cursors : t -> Cursor.t list
 (* Returns all the cursors that don't match the id.
  * Does not require id to be in state. *)
 val get_other_cursors : t -> Cursor.id -> Cursor.t list
+(* [new_cursor st] creates a new cursor in state [st]. *)
+val new_cursor : t -> unit
+(* Also gives the cursor itself. *)
+val new_cursor_get : t -> Cursor.id
+(* Adds a cursor to the state. false if id already exists. *)
+val add_cursor : t -> Cursor.id -> bool
+(* Removes a cursor from the state. false if doesn't exist. *)
+val del_cursor : t -> Cursor.id -> bool
 
 (* ith row. *)
 val ith : t -> int -> row option
@@ -39,25 +39,25 @@ val ith : t -> int -> row option
 val jth : row -> int -> char option
 (* Gets all rows. *)
 val rows : t -> row list
-
+(* Turns rows into something readable. *)
 val string_of_row : row -> string
 val char_list_of_row : row -> char list
 
 (* [add st c ch] inserts in [st] the char [ch] at cursor [c].
- * None if no changed occured, for example because of backspace at start. *)
-val add : t -> Cursor.id -> char -> t option
+ * false if no changed occured, for example because of backspace at start. *)
+val add : t -> Cursor.id -> char -> bool
 
 (* Moves cursor one character right, left, down, or up.
  * Right and left may change lines.
- * None if no change occured. *)
-val inc : t -> Cursor.id -> t option
-val dec : t -> Cursor.id -> t option
-val up : t -> Cursor.id -> t option
-val down : t -> Cursor.id -> t option
+ * false if no change occured. *)
+val inc : t -> Cursor.id -> bool
+val dec : t -> Cursor.id -> bool
+val up : t -> Cursor.id -> bool
+val down : t -> Cursor.id -> bool
 
 (* Creating a new state. *)
 val blank : t
-val instantiate : Cursor.id -> File.name option -> t
+val instantiate : Cursor.id -> string list -> File.name -> t
 
 (* For debug and for transmission. *)
 (* val string_of_t : t -> string *)

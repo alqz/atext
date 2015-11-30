@@ -25,18 +25,18 @@ let string_of_id (yyyy, mo, dd, hh, mi, ss, numbers : id) : string =
 
 exception FaultyId of string
 
-let id_of_string (s : string) : id =
-  let l : int = String.length s in
+let id_of_string (str : string) : id =
+  let l : int = String.length str in
   if not (l = 4 + 2 + 2 + 2 + 2 + 2 + 7) then
     raise (FaultyId "Too short! Needs to be exactly 21 characters long!")
   else
-  let y : int = String.sub s 0 4 |> int_of_string in
-  let m : int = String.sub s 4 2 |> int_of_string in
-  let d : int = String.sub s 6 2 |> int_of_string in
-  let h : int = String.sub s 8 2 |> int_of_string in
-  let i : int = String.sub s 10 2 |> int_of_string in
-  let s : int = String.sub s 12 2 |> int_of_string in
-  let n : int = String.sub s 14 7 |> int_of_string in
+  let y : int = String.sub str 0 4 |> int_of_string in
+  let m : int = String.sub str 4 2 |> int_of_string in
+  let d : int = String.sub str 6 2 |> int_of_string in
+  let h : int = String.sub str 8 2 |> int_of_string in
+  let i : int = String.sub str 10 2 |> int_of_string in
+  let s : int = String.sub str 12 2 |> int_of_string in
+  let n : int = String.sub str 14 7 |> int_of_string in
   (* Later: write code to check that these are each valid. *)
   (y, m, d, h, i, s, n)
 
@@ -63,6 +63,9 @@ let r ((id, (x, y)) : t) : t = id, (x + 1, y)
 
 let move ((id, (x, y)) : t) (i : int) (j : int) : t =
   (id, (x + i, y + j))
+
+let ship (cs : t list) i j : t list =
+  List.map (fun c -> move c i j) cs
 
 let zero ((id, (_, _)) : t) : t =
   (id, (0, 0))

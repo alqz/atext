@@ -6,19 +6,19 @@
 (* The guardian is the editor. It handles most of the algorithm work.
  * Also keeps track of the open state, and processes instructions. *)
 
-exception OpenedTaken
-
 (* Sets the file as the currently open state.
  * Inits everything from scratch. *)
-val unfold : File.name -> unit
+val unfold : File.name option -> [> `OpenedTaken | `Success]
+val close : unit -> [> `NothingOpened | `Success]
 
 (* Pen basically updates the state using the instruction.
  * The bool at the end indicates whether a change was made. *)
-val pen_check : State.t -> Instruction.t -> State.t * bool
-val pen_filter : State.t -> Instruction.t list -> State.t * Instruction.t list
+val pen_check : State.t -> Instruction.t -> bool
+val pen_filter : State.t -> Instruction.t list -> Instruction.t list
 
 (* Same as pen, but uses the open State.t ref. *)
-val update_check : Instruction.t -> bool
+val update_check : Instruction.t ->
+  [> `NothingOpened | `InvalidInstruction | `Success]
 
 (* DISABLED FUNCTIONS
 

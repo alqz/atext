@@ -81,44 +81,48 @@ let send instruction =
   | Waiting_server -> failwith "server is not ready yet"
   | Waiting_client -> failwith "client is not ready yet"
   | _ ->
-      let send w =
+      let send (_, w) =
         let line = line_of_instruction instruction in
         Async.Std.Writer.write_line w line in
       List.iter send (!destinations);
       0
 
-let rec client_loop reader =
+let rec client_loop addr reader =
   Reader.read_line reader >>= function
   | `Eof -> failwith "connection with host has ended"
   | `Ok str ->
       AQueue.push pending (instruction_of_line str);
-      client_loop reader
+      client_loop addr reader
 
 let init_client addr port_num =
   if !status <> Empty then failwith "tried to init server/client twice" else
   let open Tcp in
   status := Waiting_client;
   connect(to_host_and_port addr port_num) >>= fun (socket, read, write) ->
-  destinations := write :: (!destinations);
-  ignore (client_loop read);
+  destinations := (addr, write) :: (!destinations);
+  ignore (client_loop addr read);
   status := Client;
   return 0
 
-let rec server_loop reader =
+let rec server_loop addr reader =
   Reader.read_line reader >>= function
-  | `Eof -> failwith "client disconnected, this handling is unimplemented"
+  | `Eof ->
+      destinations := List.remove_assoc addr (!destinations);
+      ignore (failwith "need to send an exit instruction to everyone");
+      return ()
   | `Ok str ->
       let instruction = instruction_of_line str in
       AQueue.push pending instruction;
       ignore (send instruction);
-      server_loop reader
+      server_loop addr reader
 
 let init_server port collab_num =
   if !status <> Empty then failwith "tried to init server/client twice" else
   status := Waiting_server;
-  let handle_new_connection _ r w =
-    destinations := w :: (!destinations);
-    server_loop r in
+  let handle_new_connection a r w =
+    let addr = Socket.Address.Inet.to_string a in
+    destinations := (addr, w) :: (!destinations);
+    server_loop addr r in
   let server =
     Async.Std.Tcp.Server.create
       ~max_connections:collab_num
