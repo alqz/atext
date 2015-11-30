@@ -11,15 +11,29 @@ type input =
 
 let win = initscr()
 let offset = ref 0
+(* The window as 24 rows and 80 columns *)
+let y_max = 23
+let x_max = 79
 let y_prev = ref 0
 let x_prev = ref 0
+let max_colors = 6
 let init (args : string list) : unit =
   let _ = (keypad win true) in ();
   let _ = (nodelay win true) in ();
   let _ = noecho() in ();
   let _ = start_color() in ();
-  let _ = init_pair 1 Color.red Color.black in ()
+  let _ = init_pair 1 Color.black Color.magenta in ();
+  let _ = init_pair 2 Color.black Color.red in ();
+  let _ = init_pair 3 Color.black Color.yellow in ();
+  let _ = init_pair 4 Color.black Color.green in ();
+  let _ = init_pair 5 Color.black Color.blue in ();
+  let _ = init_pair 6 Color.black Color.cyan in ()
 
+(*
+Helper function to determine whether a coord (relative) is on screen
+*)
+let visible (y : int) (x : int) : bool =
+  (0 <= y) && (y <= y_max) && (0 <= x) && (x <= x_max)
 (*
 Helper function to display one line.
 Called by refreshcreen
@@ -27,6 +41,34 @@ TODO: support horizontal scrolling (discard parts of the line that is offscreen)
 *)
 let displayline (line : string) : unit =
   ignore (addstr (line ^ "\n"))
+
+
+let colorcount : int ref = ref 1
+(*
+Helper function to generate the next color available
+*)
+let next_color () : int =
+  (
+  if (!colorcount = max_colors) then
+    colorcount := 1
+  else
+    incr colorcount
+  );
+  A.color_pair(!colorcount)
+let colordict : (string * int) list ref = ref []
+(*
+Helper function to retrieve the color associated with the cursor id
+*)
+let getcolor (id : Cursor.id) : int =
+  let id_str = Cursor.string_of_id id in
+  (
+  if (List.mem_assoc id_str !colordict) then
+    ()
+  else
+    colordict := (id_str, next_color())::!colordict
+  );
+  List.assoc id_str !colordict
+
 (*
 Helper function to display all the cursors on the screen.
 *)
@@ -35,13 +77,16 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
   | [] -> ()
   | cur::t ->
     begin
-      let y, x = Cursor.y cur, Cursor.x cur in
+      let id, y, x = Cursor.id cur, Cursor.y cur, Cursor.x cur in
       let y' = y - !offset in
-      if ((0 <= y') && (y' <= 23) && (0 <= x) && (x <= 79)) then
+      if (visible y' x) then
       begin
         let i = mvinch y' x in
+        let color = getcolor(id) in
+        attron(color);
         ignore(delch()); (* delete the original character *)
         ignore(insch(i)); (* replace with a highlighted character *)
+        attroff(color);
       end
       else
         ()
@@ -69,7 +114,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   );
 
   (* scroll down *)
-  let at_bottom = ((!y_prev - !offset) = 23) in
+  let at_bottom = ((!y_prev - !offset) = y_max) in
   (
   if (at_bottom && (y_new > !y_prev)) then
     offset := !offset + 1
@@ -98,19 +143,17 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
       end
   done;
   (* display the cursors in view *)
-  attron(WA.standout);
   displaycursors othercursors;
-  attroff(WA.standout);
   (* move cursor to user's cursor position *)
   let y_new' = y_new - !offset in
-  if ((0 <= y_new') && (y_new' <= 23) && (0 <= x_new) && (x_new <= 79)) then
+  if (visible y_new' x_new) then
   begin
     ignore(move y_new' x_new);
-    attron(A.color_pair(1));
+    attron(WA.underline);
     let i = inch() in
     ignore(delch()); (* delete the original character *)
     ignore(insch(i)); (* replace with a colored character *)
-    attroff(A.color_pair(1));
+    attroff(WA.underline);
   end
   else
     ();
