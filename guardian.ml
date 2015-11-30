@@ -48,13 +48,14 @@ let update_check (it : Instruction.t)
       | false -> `InvalidInstruction
       | true -> (* update the GUI *)
         let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
-        let my_coords : int * int = Cursor.x my_cursor, Cursor.y my_cursor in
+        (* let my_coords : int * int =
+          Cursor.x my_cursor, Cursor.y my_cursor in *)
         let other_cursors : Cursor.t list = State.get_other_cursors st !me in
-        let other_coords : (int * int) list = List.fold_left (fun cl c ->
-          (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in
+        (* let other_coords : (int * int) list = List.fold_left (fun cl c ->
+          (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in *)
         let rows_as_strings : string list =
           List.map State.string_of_row (State.rows st) in
-        Gui.refreshscreen rows_as_strings other_coords my_coords; `Success
+        Gui.refreshscreen rows_as_strings other_cursors my_cursor; `Success
     end
   | None -> `NothingOpened
 
