@@ -11,16 +11,24 @@ for i=no_of_lines downto 0 do
   in
   testlines := s::!testlines
 done;
-let testcursors = ref [] in
+let testcursors : Cursor.t list ref = ref [] in
+let rec diagmovecursor (c : Cursor.t) (n : int) : Cursor.t =
+  if (n = 0) then
+    c
+  else
+    diagmovecursor (Cursor.move c 1 1) (n-1)
+in
 for i = 0 to no_of_lines do
-  testcursors := (i,i)::!testcursors
+  let c = Cursor.new_cursor() in
+  testcursors := (diagmovecursor c i)::!testcursors
 done;
 init [];
-refreshscreen !testlines [];
+let mycursor = Cursor.new_cursor() in
+refreshscreen !testlines [] mycursor;
 pausescreen();
 for i=0 to no_of_lines do
   setoffset i;
-  refreshscreen !testlines !testcursors;
+  refreshscreen !testlines !testcursors mycursor;
   pausescreen();
 done;
 endwin()

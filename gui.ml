@@ -56,6 +56,7 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
 let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
                   (thiscursor : Cursor.t) : unit =
   let y_new, x_new = Cursor.y thiscursor, Cursor.x thiscursor in
+
   (* vertical scrolling *)
 
   (* scroll up *)
@@ -101,12 +102,19 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   displaycursors othercursors;
   attroff(WA.standout);
   (* move cursor to user's cursor position *)
-  ignore(move y_new x_new);
-  attron(A.color_pair(1));
-  let i = inch() in
-  ignore(delch()); (* delete the original character *)
-  ignore(insch(i)); (* replace with a colored character *)
-  attroff(A.color_pair(1));
+  let y_new' = y_new - !offset in
+  if ((0 <= y_new') && (y_new' <= 23) && (0 <= x_new) && (x_new <= 79)) then
+  begin
+    ignore(move y_new' x_new);
+    attron(A.color_pair(1));
+    let i = inch() in
+    ignore(delch()); (* delete the original character *)
+    ignore(insch(i)); (* replace with a colored character *)
+    attroff(A.color_pair(1));
+  end
+  else
+    ();
+
   y_prev := y_new; (* should probably move this after display cursor *)
   ignore(refresh())
 
