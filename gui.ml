@@ -105,7 +105,9 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list)
   ignore(delch()); (* delete the original character *)
   ignore(insch(i)); (* replace with a colored character *)
   attroff(A.color_pair(1));
-  y_prev := y_new (* should probably move this after display cursor *)
+  y_prev := y_new; (* should probably move this after display cursor *)
+  ignore(refresh())
+
 
 let poll_keyboard () : input =
   let i = getch() in
