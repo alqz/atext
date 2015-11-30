@@ -16,11 +16,11 @@ type input =
 val init : string list -> unit
 
 (*
-Takes in all lines
-all cursors (absolute)
-user's cursor position (absolute) y first and then x
+Takes in all lines as strings
+all other cursors
+this cursor
 *)
-val refreshscreen : string list -> (int * int) list -> (int * int) -> unit
+val refreshscreen : string list -> Cursor.t list -> Cursor.t -> unit
 
 
 (*

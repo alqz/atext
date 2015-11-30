@@ -30,11 +30,12 @@ let displayline (line : string) : unit =
 (*
 Helper function to display all the cursors on the screen.
 *)
-let rec displaycursors (cursors : (int*int) list) : unit =
+let rec displaycursors (cursors : Cursor.t list) : unit =
   match cursors with
   | [] -> ()
-  | (y,x)::t ->
+  | cur::t ->
     begin
+      let y, x = Cursor.y cur, Cursor.x cur in
       let y' = y - !offset in
       if ((0 <= y') && (y' <= 23) && (0 <= x) && (x <= 79)) then
       begin
@@ -52,8 +53,9 @@ let rec displaycursors (cursors : (int*int) list) : unit =
 (* 24 rows and 80 columns *)
 (* completely redraws the whole screen *)
 (* takes into consideration the vertical scrolling *)
-let refreshscreen (alllines : string list) (allcursors : (int*int) list)
-                  (y_new, x_new : int * int) : unit =
+let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
+                  (thiscursor : Cursor.t) : unit =
+  let y_new, x_new = Cursor.y thiscursor, Cursor.x thiscursor in
   (* vertical scrolling *)
 
   (* scroll up *)
@@ -96,7 +98,7 @@ let refreshscreen (alllines : string list) (allcursors : (int*int) list)
   done;
   (* display the cursors in view *)
   attron(WA.standout);
-  displaycursors allcursors;
+  displaycursors othercursors;
   attroff(WA.standout);
   (* move cursor to user's cursor position *)
   ignore(move y_new x_new);

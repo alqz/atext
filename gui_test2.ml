@@ -7,7 +7,7 @@ for i=no_of_lines downto 0 do
   let s = "This is line number "
           ^ (string_of_int i)
           ^ " of " ^ (string_of_int no_of_lines)
-          ^ ". Press any key to continue"
+          ^ ". The screen stays here"
   in
   testlines := s::!testlines
 done;
