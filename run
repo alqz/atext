@@ -1,0 +1,1 @@
+cs3110 run writer.ml -- hello.txt

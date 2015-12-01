@@ -4,6 +4,7 @@
  *)
 
 open Async.Std
+open Auxiliary
 
 exception FileFailedToOpen
 
@@ -35,6 +36,7 @@ let rec share (it : Instruction.t) : unit =
   ignore (Server.send it)
 
 let rec listen : unit -> unit Deferred.t = fun _ ->
+  pd "W.listen: starting to listen";
   (* Poll keyboard *)
   let key_input_d : Gui.input Deferred.t =
     Gui.poll_keyboard () in
@@ -64,6 +66,7 @@ and listen_ext : unit -> unit Deferred.t = fun _ ->
  * Returns an instruction, that should be sent depending on
  * whether it was accepted, Some, or rejected, None. *)
 and process_key_input (ki : Gui.input) : unit Deferred.t =
+  pd "W.process_key: key input detected";
   let it : Instruction.t option = interpret ki in
   match it with
   (* Is a valid thing typed at all? If not, just don't bother. *)
@@ -78,21 +81,26 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
     let open Gui in
     if ki = Leave then stop_listen () else listen_key ()
 and process_ext_input (it : Instruction.t) : unit Deferred.t =
+  pd "W.process_key: key input detected";
   ignore (Guardian.update_check it);
   listen_ext ()
 and stop_listen : unit -> unit Deferred.t = fun _ ->
-  return (() |> Guardian.close |> ignore; exit 0)
+  () |> Guardian.close |> ignore;
+  exit 0
 
 let uncap (arg_list : string list) : unit =
+  pd "W.uncap: Start of program";
   match arg_list with
-  | [] -> Guardian.unfold None |> ignore
-  | h::t -> Guardian.unfold (Some (File.file_of_string h)) |> ignore;
+  | [] -> pd "W.uncap: with no arguments"; Guardian.unfold None |> ignore
+  | h::t -> pd ("W.uncap: with argument " ^ h);
+    Guardian.unfold (Some (File.file_of_string h)) |> ignore;
+  pd "W.uncap: finished initialization; going to listen";
   listen () >>> fun _ -> ()
 
-let _ = Scheduler.go ();;
-
 (* To run with new file, use: *)
-uncap [];;
+let _ = uncap (Array.to_list Sys.argv)
 
 (* To run with command line arguments, use the following: *)
 (* uncap (Array.to_list Sys.argv);; *)
+
+let _ = Scheduler.go ()

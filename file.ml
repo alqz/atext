@@ -3,6 +3,8 @@
  * For ATEXT text-editor project.
  *)
 
+open Auxiliary
+
 (* File name. *)
 type name = {
   n   : string;
@@ -15,7 +17,7 @@ type path = string list
 exception FileNotFound of string
 
 let designated : path ref =
-  ref ["home"; "vagrant"; "Desktop"; "atext"; "test_edit_dir"]
+  ref ["home"; "vagrant"; "Desktop"; "atext"]
 
 let rec concat_path (p : path) : string =
   match p with
@@ -33,11 +35,12 @@ let in_chn_of_name (n : name) : in_channel =
   in try open_in full with Sys_error s -> raise (FileNotFound s)
 
 let out_chn_of_name (n : name) : out_channel =
+  pd "File.out_chn_of_name: Attempting to open an out channel";
   let p : string = concat_root_path !designated in
   let full : string = match n.ext with
     | Some s -> p ^ n.n ^ "." ^ s
     | None -> p ^ n.n
-  in open_out full
+  in open_out_gen [Open_creat; Open_wronly] 700 full
 
 let open_lines (n : name) : string list =
   let chn : in_channel = in_chn_of_name n in
@@ -74,6 +77,7 @@ let string_of_file (n : name) : string =
   | Some ext -> n.n ^ "." ^ ext
 
 let create (n : name) : name =
+  pd "File.create: creating file from scratch";
   n |> out_chn_of_name |> close_out; n
 
 let default : unit -> name = fun _ ->

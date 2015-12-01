@@ -3,6 +3,8 @@
  * For ATEXT text-editor project.
  *)
 
+open Auxiliary
+
 let me : Cursor.id ref =
   ref (Cursor.gen_id ())
 
@@ -60,14 +62,18 @@ let update_check (it : Instruction.t)
 
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)
 let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
+  pd "G.unfold: Unfolding from Some file or from None";
   match !opened with
-  | None ->
+  | None -> pd "G.unfold: Currently nothing opened";
     let cid : Cursor.id = Cursor.gen_id () in
     let (file, data) : File.name * string list = match fn with
       | None -> File.default (), [""]
-      | Some fn -> fn, File.open_lines fn
-    in me := cid; opened := Some (State.instantiate cid data file); `Success
-  | Some _ -> `OpenedTaken
+      | Some fn -> pd "G.unfold: Generating state from file";
+        fn, try File.open_lines fn
+        with File.FileNotFound _ -> (ignore (File.create fn); [""])
+    in pd "G.unfold: successfully initialized state";
+    me := cid; opened := Some (State.instantiate cid data file); `Success
+  | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 
 (* Note that the cid in me is ignored. *)
 let close : unit -> [> `NothingOpened | `Success] = fun _ ->
