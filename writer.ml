@@ -5,31 +5,33 @@
 
 open Async.Std
 
-type mode = Offline | Host | Client | Off
-val is : mode ref
+exception FileFailedToOpen
 
-let uncap (arg_list : string list) : unit =
-  listen ()
+(* Unused for now. *)
+(* type mode = Offline | Host | Client | Inert *)
 
 (* Interpret a raw user input. *)
-let interpret (gi : Gui.input) : Instruction.t =
-  let fn = State.get_name !State.opened in
-  let me = !State.me in
-  match gi with
-  | _ ->
-    {cursor = me; file = fn; op =
-      match gi with
-      | Leave -> Leave
-      | Up -> Move Up | Down -> Move Down
-      | Left -> Move Left | Right -> Move Right
-      | Backspace -> Add '\b'
-      | Delete -> Add '\127'
-      | Enter -> Add '\n'
-      | Character c -> Add c
-    }
+let interpret (gi : Gui.input) : Instruction.t option =
+  let fn = match !Guardian.opened with
+    | None -> raise FileFailedToOpen
+    | Some st -> State.get_name st in
+  let me = !Guardian.me in
+  let op : Instruction.operation option = match gi with
+    | Leave -> Some Leave
+    | Up -> Some (Move Up) | Down -> Some (Move Down)
+    | Left -> Some (Move Left) | Right -> Some (Move Right)
+    | Backspace -> Some (Add '\b')
+    | Delete -> Some (Add '\127')
+    | Enter -> Some (Add '\n')
+    | Character c -> Some (Add c)
+    | Nothing -> None
+  in match op with
+  | Some op' ->
+    let open Instruction in Some {op = op'; cursor = me; file = fn}
+  | None -> None
 
 let rec share (it : Instruction.t) : unit =
-  Server.send it
+  ignore (Server.send it)
 
 let rec listen = fun _ ->
   (* Poll keyboard *)
@@ -49,30 +51,34 @@ let rec listen = fun _ ->
  * Returns an instruction, that should be sent depending on
  * whether it was accepted, Some, or rejected, None. *)
 and process_key_input (ki : Gui.input) : unit =
-  let it : Instruction.t = interpret ki in
-  begin
-    match Guardian.update_check it with
-    | `NothingOpened -> (* probably should not be here, if opened on startup *)
-      () |> File.default |> Guardian.unfold |> ignore; (* open *)
-      process_key_input ki (* retry *)
-    | `Success -> (* Proceed *) share it
-    | `InvalidInstruction -> ()
-  end;
-  if key_input = Leave then end () else refrain ()
+  let it : Instruction.t option = interpret ki in
+  match it with
+  (* Is a valid thing typed at all? If not, just don't bother. *)
+  | None -> refrain ()
+  | Some _ ->
+    begin
+      match Guardian.update_check it with
+      | `NothingOpened -> raise FileFailedToOpen
+      | `Success -> (* Proceed *) share it
+      | `InvalidInstruction -> ()
+    end;
+    if ki = Leave then finish () else refrain ()
 and process_ext_input (it : Instruction.t) : unit =
   ignore (Guardian.update_check);
   refrain ()
 (* Basically, this makes the above code more readable.
  * Rather than evaluating to a recursive call or just (),
  * we call functions with names. *)
-and refrain : unit -> unit = listen ()
-and end : unit -> unit = ()
+and refrain : unit -> unit = listen
+and finish : unit -> unit = fun _ -> ()
 
+let uncap (arg_list : string list) : unit =
+  listen ()
+
+let _ = Scheduler.go ();;
 
 (* To run with new file, use: *)
 uncap [];;
 
 (* To run with command line arguments, use the following: *)
 (* uncap (Array.to_list Sys.argv);; *)
-
-let _ = Scheduler.go ()

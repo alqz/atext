@@ -3,8 +3,6 @@
  * For ATEXT text-editor project.
  *)
 
-exception OpenedTaken
-
 let me : Cursor.id ref =
   ref (Cursor.gen_id ())
 

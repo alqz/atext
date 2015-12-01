@@ -6,6 +6,10 @@
 (* The guardian is the editor. It handles most of the algorithm work.
  * Also keeps track of the open state, and processes instructions. *)
 
+(* Currently opened state and id of my cursor. *)
+val opened : State.t option ref
+val me : Cursor.id ref
+
 (* Sets the file as the currently open state.
  * Inits everything from scratch. *)
 val unfold : File.name option -> [> `OpenedTaken | `Success]
