@@ -172,33 +172,33 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   y_prev := y_new; (* should probably move this after display cursor *)
   ignore(refresh())
 
+let string_to_clist str =
+  let rec aux inx str lst =
+    if inx < 0 then lst else
+    aux (inx - 1) str ((String.get str inx) :: lst) in
+  aux (String.length str - 1) str []
+
+(* Buffer of size 3 to read characters into *)
+let buf = ref "123"
 
 let poll_keyboard () : input Deferred.t =
-  Reader.read_char std >>= fun chr ->
-  match chr with
-  | `Eof -> failwith "stdin disconnected"
-  | `Ok ch ->
-      let i = Char.code ch in
-      if (i = Key.backspace) then
-        return Backspace
-      else if (i = Key.enter) then
-        return Enter
-      else if (i = 330) then (* delete key *)
-        return Delete
-      else if (i = Key.up) then
-        return Up
-      else if (i = Key.down) then
-        return Down
-      else if (i = Key.left) then
-        return Left
-      else if (i = Key.right) then
-        return Right
-      else if (i = 27) (* the Escape key *) then
-        return Leave
-      else if ((i >= 0) && (i <= 255)) then (* forward all other characters *)
-        return (Character(Char.chr i))
-      else (* Reject everything else, including -1 which is no key typed *)
-        return Nothing
+  Reader.read std (!buf) >>= fun status ->
+  if status = `Eof then failwith "stdin disconnected" else
+  let info = List.map Char.code (string_to_clist (!buf)) in
+  let result =
+    match info with
+    | [127; 95; 95] -> return Backspace (* delete vs backspace? *)
+    | [13 ; 95; 95] -> return Enter
+    (* | [127; 95; 95] -> return Delete *)
+    | [27 ; 79; 65] -> return Up
+    | [27 ; 79; 66] -> return Down
+    | [27 ; 79; 68] -> return Left
+    | [27 ; 79; 67] -> return Right
+    | [27 ; 95; 95] -> return Leave
+    | [id ; 95; 95] -> return (Character(Char.chr id))
+    | _ -> return Nothing in
+  buf := "___";
+  result
 
 (* For testing only *)
 let pausescreen () : unit =

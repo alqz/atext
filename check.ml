@@ -9,20 +9,31 @@ open Curses
   | WSIGNALED code -> print_endline ("kill signal code "^(string_of_int code))
   | WSTOPPED code -> print_endline ("stop signal code "^(string_of_int code)) *)
 
+
+let string_to_clist str =
+  let rec aux inx str lst =
+    if inx < 0 then lst else
+    aux (inx - 1) str ((String.get str inx) :: lst) in
+  aux (String.length str - 1) str []
+
+let code_str lst =
+  let rec aux str = function
+  | [] -> str
+  | h :: t -> aux (str ^ " " ^(string_of_int (Char.code h))) t in
+  aux "" lst
+
 let _ = init []
 
 let testlines = ref []
 
 let std = Lazy.force (Reader.stdin)
 
+let buf = ref "___"
+
 let rec check () =
-  Reader.read_char std >>= fun x ->
-  begin match x with
-  | `Eof -> Pervasives.exit 0
-  | `Ok chr ->
-        testlines:=(string_of_int (Char.code chr)):: (!testlines);
-        testlines:=(string_of_int (getch())) :: (!testlines);
-        refreshscreen (!testlines) [] (Cursor.new_cursor()) end;
+  Reader.read std (!buf) >>= fun _ ->
+  testlines:=((!buf) |> string_to_clist |> code_str):: (!testlines);
+  refreshscreen (!testlines) [] (Cursor.new_cursor());
   check ()
 
 let _ = check ()
