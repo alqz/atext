@@ -15,3 +15,5 @@ val pop    : 'a t -> 'a Deferred.t
 (** Return true if the queue is empty *)
 val is_empty : 'a t -> bool
 
+(** Return size of queue *)
+val size : 'a t -> int

@@ -31,11 +31,11 @@ let line_of_instruction instruction =
     | Down -> "down"
     | Left -> "left"
     | Right -> "right" end
-  | New -> "new" end ^ "\n"
+  | New -> "new"
+  | Leave -> "leave" end ^ "\n"
 
 let instruction_of_line line =
   let open Instruction in
-
   let info_list = Str.split (Str.regexp " -> ") line in
   match info_list with
   | [id; cmd] ->
@@ -67,8 +67,13 @@ let instruction_of_line line =
             cursor = id_str;
             file = file_slot;
           }
-      | ["new"; id2] -> {
+      | ["new"] -> {
             op = New;
+            cursor = id_str;
+            file = file_slot;
+          }
+      | ["leave"] -> {
+            op = Leave;
             cursor = id_str;
             file = file_slot;
           }

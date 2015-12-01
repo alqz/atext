@@ -87,3 +87,5 @@ let pop q =
 (* either if queue really is empty or if there are pending read requests *)
 let is_empty q = q.read >= q.write
 
+let size q = if q.write > q.read then q.write - q.read else 0
+
