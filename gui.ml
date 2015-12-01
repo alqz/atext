@@ -217,9 +217,9 @@ let poll_keyboard () : input Deferred.t =
   let info = List.map Char.code (string_to_clist (!buf)) in
   let result =
     match info with
-    | [127; 95; 95] -> return Backspace (* delete vs backspace? *)
+    | [8  ; 95; 95] -> return Backspace
     | [13 ; 95; 95] -> return Enter
-    (* | [127; 95; 95] -> return Delete *)
+    | [127; 95; 95] -> return Delete
     | [27 ; 79; 65] -> return Up
     | [27 ; 79; 66] -> return Down
     | [27 ; 79; 68] -> return Left
