@@ -22,7 +22,7 @@ let destinations = ref []
 let line_of_instruction instruction =
   let open Instruction in
   let str_id = Cursor.string_of_id instruction.cursor in
-  str_id ^ " -> " ^
+  str_id ^ " -> " ^ File.string_of_file instruction.file ^ ": " ^
   begin match instruction.op with
   | Add c -> "add " ^ (Char.escaped c)
   | Move dir -> "move " ^
@@ -38,45 +38,48 @@ let instruction_of_line line =
   let open Instruction in
   let info_list = Str.split (Str.regexp " -> ") line in
   match info_list with
-  | [id; cmd] ->
+  | [id; content] ->
       let id_str = Cursor.id_of_string id in
-      let file_slot = failwith "What do with file initailization?" in
-      begin match Str.split (Str.regexp " ") cmd with
-      | ["add"; c] when String.length c = 1 -> {
-            op = Add (String.get c 0);
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["move"; "up"] -> {
-            op = Move Up;
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["move"; "down"] -> {
-            op = Move Down;
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["move"; "left"] -> {
-            op = Move Left;
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["move"; "right"] -> {
-            op = Move Right;
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["new"] -> {
-            op = New;
-            cursor = id_str;
-            file = file_slot;
-          }
-      | ["leave"] -> {
-            op = Leave;
-            cursor = id_str;
-            file = file_slot;
-          }
+      begin match Str.split (Str.regexp ": ") content with
+      | [f; cmd] ->
+          let file_slot = File.file_of_string f in
+          begin match Str.split (Str.regexp " ") cmd with
+          | ["add"; c] when String.length c = 1 -> {
+                op = Add (String.get c 0);
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["move"; "up"] -> {
+                op = Move Up;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["move"; "down"] -> {
+                op = Move Down;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["move"; "left"] -> {
+                op = Move Left;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["move"; "right"] -> {
+                op = Move Right;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["new"] -> {
+                op = New;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | ["leave"] -> {
+                op = Leave;
+                cursor = id_str;
+                file = file_slot;
+              }
+          | _ -> failwith "badly formatted instruction" end
       | _ -> failwith "badly formatted instruction" end
   | _ -> failwith "badly formatted instruction"
 

@@ -76,12 +76,17 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
       | `InvalidInstruction -> ()
     end;
     let open Gui in
-    if ki = Leave then return () else listen_key ()
+    if ki = Leave then stop_listen () else listen_key ()
 and process_ext_input (it : Instruction.t) : unit Deferred.t =
   ignore (Guardian.update_check it);
   listen_ext ()
+and stop_listen : unit -> unit Deferred.t = fun _ ->
+  return (() |> Guardian.close |> ignore; exit 0)
 
 let uncap (arg_list : string list) : unit =
+  match arg_list with
+  | [] -> Guardian.unfold None |> ignore
+  | h::t -> Guardian.unfold (Some (File.file_of_string h)) |> ignore;
   listen () >>> fun _ -> ()
 
 let _ = Scheduler.go ();;
