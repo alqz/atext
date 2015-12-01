@@ -36,3 +36,6 @@ val pausescreen : unit -> unit
 
 (* adjust the voffset (vertical scrolling) *)
 val setvoffset : int -> unit
+
+(* adjust the hoffset (horizontal scrolling) *)
+val sethoffset : int -> unit

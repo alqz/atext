@@ -12,6 +12,7 @@ type input =
 
 let win = initscr()
 let voffset = ref 0
+let hoffset = ref 0
 let std = Lazy.force (Reader.stdin)
 (* The window as 24 rows and 80 columns *)
 let y_max = 23
@@ -36,14 +37,6 @@ Helper function to determine whether a coord (relative) is on screen
 *)
 let visible (y : int) (x : int) : bool =
   (0 <= y) && (y <= y_max) && (0 <= x) && (x <= x_max)
-(*
-Helper function to display one line.
-Called by refreshcreen
-TODO: support horizontal scrolling (discard parts of the line that is offscreen)
-*)
-let displayline (line : string) : unit =
-  ignore (addstr (line ^ "\n"))
-
 
 let colorcount : int ref = ref 1
 (*
@@ -86,9 +79,10 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
     begin
       let id, y, x = Cursor.id cur, Cursor.y cur, Cursor.x cur in
       let y' = y - !voffset in
-      if (visible y' x) then
+      let x' = x - !hoffset in
+      if (visible y' x') then
       begin
-        let i = mvinch y' x in
+        let i = mvinch y' x' in
         let color = getcolor(id) in
         attron(color);
         ignore(delch()); (* delete the original character *)
@@ -120,7 +114,44 @@ let scroll (y_new : int) (x_new : int) : unit =
     voffset := !voffset + 1
   else
     ()
+  );
+
+  (* scroll right *)
+  let at_right = ((!x_prev - !hoffset) = x_max) in
+  let moved_right = (x_new > !x_prev) in
+  (
+  if (at_right && moved_right) then
+    hoffset := !hoffset + x_max + 1
+  else
+    ()
+  );
+
+  (* scroll left *)
+  let at_left = ((!x_prev - !hoffset) = 0) in
+  let moved_left = (x_new < !x_prev) in
+  (
+  if (at_left && moved_left) then
+    hoffset := !hoffset - x_max - 1
+  else
+    ()
   )
+
+(*
+Helper function to display one line.
+Called by refreshcreen
+*)
+let displayline (line : string) : unit =
+
+  if (String.length line > (!hoffset + 80)) then
+    (* The line has characters to the right of the current view *)
+    ignore(addstr (String.sub line !hoffset 79))
+  else if (String.length line > !hoffset) then
+    (* The line fits within the screen after hoffset *)
+    ignore(addstr (line))
+  else (* the line entirely to the left of the current view *)
+      ()
+
+  (* ignore (addstr (line ^ "\n")) *)
 
 (* 24 rows and 80 columns *)
 (* completely redraws the whole screen *)
@@ -128,13 +159,9 @@ let scroll (y_new : int) (x_new : int) : unit =
 let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
                   (thiscursor : Cursor.t) : unit =
   let y_new, x_new = Cursor.y thiscursor, Cursor.x thiscursor in
-
-  (* vertical scrolling *)
+  (* handle scrolling *)
   scroll y_new x_new;
-
-
-
-
+  (* clear the whole screen *)
   clear();
   let lines = ref alllines in
   (* discard lines above the current view *)
@@ -150,6 +177,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
     | h::t ->
       begin
         displayline h;
+        ignore(addstr "\n");
         lines := t
       end
   done;
@@ -157,9 +185,10 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   displaycursors othercursors;
   (* move cursor to user's cursor position *)
   let y_new' = y_new - !voffset in
-  if (visible y_new' x_new) then
+  let x_new' = x_new - !hoffset in
+  if (visible y_new' x_new') then
   begin
-    ignore(move y_new' x_new);
+    ignore(move y_new' x_new');
     attron(WA.underline);
     let i = inch() in
     ignore(delch()); (* delete the original character *)
@@ -169,7 +198,8 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   else
     ();
 
-  y_prev := y_new; (* should probably move this after display cursor *)
+  y_prev := y_new;
+  x_prev := x_new;
   ignore(refresh())
 
 let string_to_clist str =
@@ -208,3 +238,7 @@ let pausescreen () : unit =
 (* For testing only *)
 let setvoffset (i : int) : unit =
   voffset := i
+
+(* For testing only *)
+let sethoffset (i : int) : unit =
+  hoffset := i
