@@ -1,7 +1,7 @@
 open Gui
 open Curses
 
-let no_of_lines = 50 in
+let no_of_lines = 24 in
 let testlines = ref [] in
 for i=no_of_lines downto 0 do
   let s = "This is line number "

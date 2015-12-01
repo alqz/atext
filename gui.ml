@@ -22,12 +22,12 @@ let init (args : string list) : unit =
   let _ = (nodelay win true) in ();
   let _ = noecho() in ();
   let _ = start_color() in ();
-  let _ = init_pair 1 Color.black Color.magenta in ();
-  let _ = init_pair 2 Color.black Color.red in ();
-  let _ = init_pair 3 Color.black Color.yellow in ();
-  let _ = init_pair 4 Color.black Color.green in ();
-  let _ = init_pair 5 Color.black Color.blue in ();
-  let _ = init_pair 6 Color.black Color.cyan in ()
+  let _ = init_pair 1 Color.black Color.red in ();
+  let _ = init_pair 2 Color.black Color.yellow in ();
+  let _ = init_pair 3 Color.black Color.green in ();
+  let _ = init_pair 4 Color.black Color.blue in ();
+  let _ = init_pair 5 Color.black Color.cyan in ();
+  let _ = init_pair 6 Color.black Color.magenta in ()
 
 (*
 Helper function to determine whether a coord (relative) is on screen
@@ -48,13 +48,14 @@ let colorcount : int ref = ref 1
 Helper function to generate the next color available
 *)
 let next_color () : int =
+  let new_color = A.color_pair(!colorcount) in
   (
   if (!colorcount = max_colors) then
     colorcount := 1
   else
     incr colorcount
   );
-  A.color_pair(!colorcount)
+  new_color
 let colordict : (string * int) list ref = ref []
 (*
 Helper function to retrieve the color associated with the cursor id
@@ -65,8 +66,12 @@ let getcolor (id : Cursor.id) : int =
   if (List.mem_assoc id_str !colordict) then
     ()
   else
-    colordict := (id_str, next_color())::!colordict
-  );
+  begin
+    let new_color = next_color() in
+    Printf.printf "Created new color %i for cursor id %s\n" new_color id_str;
+    colordict := (id_str, new_color)::!colordict
+  end
+  ); (* create new entry in colordict if needed *)
   List.assoc id_str !colordict
 
 (*
@@ -94,6 +99,26 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
   ;
   displaycursors t
 
+let scroll (y_new : int) (x_new : int) : unit =
+  (* scroll up *)
+  let at_top = ((!y_prev - !offset) = 0) in
+  let moved_up = (y_new < !y_prev) in
+  (
+  if (at_top && moved_up) then
+    offset := !offset - 1
+  else
+    ()
+  );
+
+  (* scroll down *)
+  let at_bottom = ((!y_prev - !offset) = y_max) in
+  let moved_down = (y_new > !y_prev) in
+  (
+  if (at_bottom && moved_down) then
+    offset := !offset + 1
+  else
+    ()
+  )
 
 (* 24 rows and 80 columns *)
 (* completely redraws the whole screen *)
@@ -103,24 +128,8 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   let y_new, x_new = Cursor.y thiscursor, Cursor.x thiscursor in
 
   (* vertical scrolling *)
+  scroll y_new x_new;
 
-  (* scroll up *)
-  let at_top = ((!y_prev - !offset) = 0) in
-  (
-  if (at_top && (y_new < !y_prev)) then
-    offset := !offset - 1
-  else
-    ()
-  );
-
-  (* scroll down *)
-  let at_bottom = ((!y_prev - !offset) = y_max) in
-  (
-  if (at_bottom && (y_new > !y_prev)) then
-    offset := !offset + 1
-  else
-    ()
-  );
 
 
 
