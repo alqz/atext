@@ -81,7 +81,7 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
   ignore (Guardian.update_check it);
   listen_ext ()
 and stop_listen : unit -> unit Deferred.t = fun _ ->
-  return (() |> Guardian.close |> ignore)
+  return (() |> Guardian.close |> ignore; exit 0)
 
 let uncap (arg_list : string list) : unit =
   match arg_list with
