@@ -81,4 +81,5 @@ let create (n : name) : name =
   n |> out_chn_of_name |> close_out; n
 
 let default : unit -> name = fun _ ->
+  pd "File.default: creating file with untitled";
   "untitled" |> file_of_string |> create

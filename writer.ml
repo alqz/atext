@@ -37,6 +37,7 @@ let rec share (it : Instruction.t) : unit =
 
 let rec listen : unit -> unit Deferred.t = fun _ ->
   pd "W.listen: starting to listen";
+  ignore (Pervasives.exit 0);
   (* Poll keyboard *)
   let key_input_d : Gui.input Deferred.t =
     Gui.poll_keyboard () in

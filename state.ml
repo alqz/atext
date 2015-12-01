@@ -305,7 +305,7 @@ let rec read (s : string) : row list =
     cut :: read remainder
   else [s]
 
-let blank : t =
+let blank : unit -> t = fun _ ->
   {cursors = []; text = [""]; origin = File.default ()}
 
 let instantiate (cid  : Cursor.id)

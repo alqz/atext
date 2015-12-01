@@ -56,7 +56,7 @@ val up : t -> Cursor.id -> bool
 val down : t -> Cursor.id -> bool
 
 (* Creating a new state. *)
-val blank : t
+val blank : unit -> t
 val instantiate : Cursor.id -> string list -> File.name -> t
 
 (* For debug and for transmission. *)
