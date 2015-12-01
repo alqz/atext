@@ -68,6 +68,11 @@ let file_of_string (s : string) : name =
     {n = String.sub s 0 i; ext = Some (String.sub s (i + 1) (l - (i + 1)))}
   else {n = s; ext = None}
 
+let string_of_file (n : name) : string =
+  match n.ext with
+  | None -> n.n
+  | Some ext -> n.n ^ "." ^ ext
+
 let create (n : name) : name =
   n |> out_chn_of_name |> close_out; n
 
