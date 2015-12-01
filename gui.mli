@@ -34,5 +34,5 @@ val poll_keyboard : unit -> input
 (* pause the screen after a call to refreshcreen to see the results *)
 val pausescreen : unit -> unit
 
-(* adjust the offset (vertical scrolling) *)
-val setoffset : int -> unit
+(* adjust the voffset (vertical scrolling) *)
+val setvoffset : int -> unit

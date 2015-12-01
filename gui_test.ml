@@ -27,7 +27,7 @@ let mycursor = Cursor.new_cursor() in
 refreshscreen !testlines [] mycursor;
 pausescreen();
 for i=0 to no_of_lines do
-  setoffset i;
+  setvoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
 done;
