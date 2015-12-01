@@ -11,6 +11,7 @@ let opened : State.t option ref =
   ref None
 
 let pen_check (st : State.t) (it : Instruction.t) : bool =
+  let open Instruction in
   if it.file = State.get_name st then
     match it.op with
     | Add ch -> State.add st it.cursor ch
