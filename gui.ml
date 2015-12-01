@@ -63,7 +63,7 @@ let getcolor (id : Cursor.id) : int =
   else
   begin
     let new_color = next_color() in
-    Printf.printf "Created new color %i for cursor id %s\n" new_color id_str;
+    (* Printf.printf "Created new color %i for cursor id %s\n" new_color id_str; *)
     colordict := (id_str, new_color)::!colordict
   end
   ); (* create new entry in colordict if needed *)
@@ -141,13 +141,20 @@ Helper function to display one line.
 Called by refreshcreen
 *)
 let displayline (line : string) : unit =
-
-  if (String.length line > (!hoffset + 80)) then
+  let l = String.length line in
+  if (l > !hoffset) then
+  begin
+    if (l > (!hoffset + 80)) then
     (* The line has characters to the right of the current view *)
-    ignore(addstr (String.sub line !hoffset 79))
-  else if (String.length line > !hoffset) then
-    (* The line fits within the screen after hoffset *)
-    ignore(addstr (line))
+    begin
+      print_endline "yup!";
+      ignore(addstr (String.sub line (!hoffset) 79))
+
+    end
+    else
+      (* The line fits within the screen after hoffset *)
+      ignore(addstr (String.sub line !hoffset (l - !hoffset - 1)))
+  end
   else (* the line entirely to the left of the current view *)
       ()
 
