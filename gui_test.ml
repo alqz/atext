@@ -32,13 +32,13 @@ for i=0 to (no_of_lines-23) do
   pausescreen();
 done;
 
-for i=1 to 4 do
+for i=1 to 8 do
   sethoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
 done;
 
-for i=3 downto 0 do
+for i=7 downto 0 do
   sethoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
@@ -49,5 +49,13 @@ for i=(no_of_lines-24) downto 0  do
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
 done;
+
+(* sethoffset 80;
+refreshscreen !testlines !testcursors mycursor;
+pausescreen();
+
+sethoffset 0;
+refreshscreen !testlines !testcursors mycursor;
+pausescreen(); *)
 
 endwin()
