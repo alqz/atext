@@ -10,7 +10,7 @@ type input =
   | Nothing
 
 let win = initscr()
-let offset = ref 0
+let voffset = ref 0
 (* The window as 24 rows and 80 columns *)
 let y_max = 23
 let x_max = 79
@@ -83,7 +83,7 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
   | cur::t ->
     begin
       let id, y, x = Cursor.id cur, Cursor.y cur, Cursor.x cur in
-      let y' = y - !offset in
+      let y' = y - !voffset in
       if (visible y' x) then
       begin
         let i = mvinch y' x in
@@ -101,21 +101,21 @@ let rec displaycursors (cursors : Cursor.t list) : unit =
 
 let scroll (y_new : int) (x_new : int) : unit =
   (* scroll up *)
-  let at_top = ((!y_prev - !offset) = 0) in
+  let at_top = ((!y_prev - !voffset) = 0) in
   let moved_up = (y_new < !y_prev) in
   (
   if (at_top && moved_up) then
-    offset := !offset - 1
+    voffset := !voffset - 1
   else
     ()
   );
 
   (* scroll down *)
-  let at_bottom = ((!y_prev - !offset) = y_max) in
+  let at_bottom = ((!y_prev - !voffset) = y_max) in
   let moved_down = (y_new > !y_prev) in
   (
   if (at_bottom && moved_down) then
-    offset := !offset + 1
+    voffset := !voffset + 1
   else
     ()
   )
@@ -136,7 +136,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   clear();
   let lines = ref alllines in
   (* discard lines above the current view *)
-  for i = 1 to !offset do
+  for i = 1 to !voffset do
     match !lines with
       | [] -> () (* run out of lines - shouldn't happen *)
       | h::t -> lines := t
@@ -154,7 +154,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   (* display the cursors in view *)
   displaycursors othercursors;
   (* move cursor to user's cursor position *)
-  let y_new' = y_new - !offset in
+  let y_new' = y_new - !voffset in
   if (visible y_new' x_new) then
   begin
     ignore(move y_new' x_new);
@@ -200,5 +200,5 @@ let pausescreen () : unit =
   ignore (getch())
 
 (* For testing only *)
-let setoffset (i : int) : unit =
-  offset := i
+let setvoffset (i : int) : unit =
+  voffset := i
