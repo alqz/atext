@@ -1,5 +1,5 @@
 (* gui *)
-
+open Async.Std
 (* This module stores a hidden mutable state within it, changing with the
  * functions as they are called.
  *)
@@ -27,7 +27,7 @@ val refreshscreen : string list -> Cursor.t list -> Cursor.t -> unit
 non-blocking get the key typed by the user.
 
 *)
-val poll_keyboard : unit -> input
+val poll_keyboard : unit -> input Deferred.t
 
 (* functions below are for debugging *)
 

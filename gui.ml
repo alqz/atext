@@ -1,3 +1,4 @@
+open Async.Std
 open Curses
 
 type input =
@@ -11,6 +12,7 @@ type input =
 
 let win = initscr()
 let voffset = ref 0
+let std = Lazy.force (Reader.stdin)
 (* The window as 24 rows and 80 columns *)
 let y_max = 23
 let x_max = 79
@@ -171,28 +173,32 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   ignore(refresh())
 
 
-let poll_keyboard () : input =
-  let i = getch() in
-  if (i = Key.backspace) then
-    Backspace
-  else if (i = Key.enter) then
-    Enter
-  else if (i = 330) then (* delete key *)
-    Delete
-  else if (i = Key.up) then
-    Up
-  else if (i = Key.down) then
-    Down
-  else if (i = Key.left) then
-    Left
-  else if (i = Key.right) then
-    Right
-  else if (i = 27) (* the Escape key *) then
-    Leave
-  else if ((i >= 0) && (i <= 255)) then (* forward all other characters *)
-    Character(Char.chr i)
-  else (* Reject everything else, including -1 which is no key typed *)
-    Nothing
+let poll_keyboard () : input Deferred.t =
+  Reader.read_char std >>= fun chr ->
+  match chr with
+  | `Eof -> failwith "stdin disconnected"
+  | `Ok ch ->
+      let i = Char.code ch in
+      if (i = Key.backspace) then
+        return Backspace
+      else if (i = Key.enter) then
+        return Enter
+      else if (i = 330) then (* delete key *)
+        return Delete
+      else if (i = Key.up) then
+        return Up
+      else if (i = Key.down) then
+        return Down
+      else if (i = Key.left) then
+        return Left
+      else if (i = Key.right) then
+        return Right
+      else if (i = 27) (* the Escape key *) then
+        return Leave
+      else if ((i >= 0) && (i <= 255)) then (* forward all other characters *)
+        return (Character(Char.chr i))
+      else (* Reject everything else, including -1 which is no key typed *)
+        return Nothing
 
 (* For testing only *)
 let pausescreen () : unit =

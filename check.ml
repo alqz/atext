@@ -20,17 +20,18 @@ let rec check () =
   begin match x with
   | `Eof -> Pervasives.exit 0
   | `Ok chr ->
-        testlines:=(Char.escaped chr):: (!testlines);
-        refreshscreen (!testlines) [] (0,0) end;
+        testlines:=(string_of_int (Char.code chr)):: (!testlines);
+        testlines:=(string_of_int (getch())) :: (!testlines);
+        refreshscreen (!testlines) [] (Cursor.new_cursor()) end;
   check ()
 
 let _ = check ()
 
 let _ =
-  refreshscreen (["asdfasdfasdf"]) [] (0,0)
+  refreshscreen (["asdfasdfasdf"]) [] (Cursor.new_cursor())
 
 let _ =
-  refreshscreen (["abc123"]) [] (0,0)
+  refreshscreen (["abc123"]) [] (Cursor.new_cursor())
 
 
 
