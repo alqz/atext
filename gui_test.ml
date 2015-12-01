@@ -1,13 +1,13 @@
 open Gui
 open Curses
 
-let no_of_lines = 24 in
+let no_of_lines = 30 in
 let testlines = ref [] in
 for i=no_of_lines downto 0 do
   let s = "This is line number "
           ^ (string_of_int i)
           ^ " of " ^ (string_of_int no_of_lines)
-          ^ ". Press any key to continue"
+          ^ ". Press any key to continue 123456789012345678901234567890"
   in
   testlines := s::!testlines
 done;
@@ -26,9 +26,28 @@ init [];
 let mycursor = Cursor.new_cursor() in
 refreshscreen !testlines [] mycursor;
 pausescreen();
-for i=0 to no_of_lines do
+for i=0 to (no_of_lines-23) do
   setvoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
 done;
+
+for i=1 to 4 do
+  sethoffset i;
+  refreshscreen !testlines !testcursors mycursor;
+  pausescreen();
+done;
+
+for i=3 downto 0 do
+  sethoffset i;
+  refreshscreen !testlines !testcursors mycursor;
+  pausescreen();
+done;
+
+for i=(no_of_lines-24) downto 0  do
+  setvoffset i;
+  refreshscreen !testlines !testcursors mycursor;
+  pausescreen();
+done;
+
 endwin()
