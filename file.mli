@@ -17,6 +17,7 @@ val save_to : name -> string -> unit
 val save_lines : name -> string list -> unit
 
 val file_of_string : string -> name
+val string_of_file : name -> string
 
 val create : name -> name
 val default : unit -> name
