@@ -255,7 +255,7 @@ let add_backspace (st : t) (cid : Cursor.id) : bool =
         let (after_on_row, _) : Cursor.t list * Cursor.t list =
           get_cursors_after_on_row st cid in
         let (after_row, _) : Cursor.t list * Cursor.t list =
-          get_cursors_after_on_row st cid in
+          get_cursors_after_row st cid in
         st.cursors <- unaffected @ (Cursor.ship after_row 0 (-1)) @
                       (Cursor.ship after_on_row (String.length prev) (-1));
         true
@@ -285,7 +285,7 @@ let add_return (st : t) (cid : Cursor.id) : bool =
     let (after_on_row, _) : Cursor.t list * Cursor.t list =
       get_cursors_after_on_row st cid in
     let (after_row, _) : Cursor.t list * Cursor.t list =
-      get_cursors_after_on_row st cid in
+      get_cursors_after_row st cid in
     st.cursors <- unaffected @ (Cursor.ship after_row 0 1) @
                   (Cursor.ship after_on_row (0 - (String.length safe)) 1);
     true
