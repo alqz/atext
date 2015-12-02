@@ -153,6 +153,7 @@ let dec (st : t) (cid : Cursor.id) : bool =
 
 (* Verified *)
 let up (st : t) (cid : Cursor.id) : bool =
+  let result =
   match get_cursor st cid with
   | None -> false
   | Some c ->
@@ -162,9 +163,11 @@ let up (st : t) (cid : Cursor.id) : bool =
         let prev_len : int = y - 1 |> ith st |> coerce |> String.length in
         if x < prev_len then (* within prev line *)
           Some (Cursor.u c)
-        else Some (Cursor.move c prev_len (-1))
+        else
+        Some (Cursor.move c (prev_len - x) (-1))
       else None
-    in replace_cursor st cid new_c
+    in replace_cursor st cid new_c in
+  result
 
 (* Verified *)
 let down (st : t) (cid : Cursor.id) : bool =
@@ -176,8 +179,8 @@ let down (st : t) (cid : Cursor.id) : bool =
       if y <= List.length st.text - 1 - 1 then (* within bottom *)
         let next_len : int = y + 1 |> ith st |> coerce |> String.length in
         if x < next_len then (* within next line *)
-          Some (Cursor.u c)
-        else Some (Cursor.move c next_len 1)
+          Some (Cursor.d c)
+        else Some (Cursor.move c (next_len - x) 1)
       else None
     in replace_cursor st cid new_c
 
