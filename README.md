@@ -13,3 +13,13 @@ $ opam upgrade utop
 $ opam install curses
 $ cs3110 compile writer.ml
 ```
+
+To run:
+```
+cs3110 run writer.ml -- filename.extension
+```
+
+Replace `filename.extension` with whatever you desire. If the file does not exist, it will be created. After running, your command line display may not display as it usually does, due to the GUI changing the settings of the display. Use this to make it normal again:
+```
+stty sane
+```
