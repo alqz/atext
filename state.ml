@@ -3,6 +3,8 @@
  * For ATEXT text-editor project.
  *)
 
+open Auxiliary
+
 type row = string
 
 type t = {
@@ -10,6 +12,22 @@ type t = {
   mutable text    : row list;
   origin          : File.name;
 }
+
+(* TO STRING FUNCTION FOR DEBUG AND TRANSMIT *)
+let string_of_t (st : t) : string =
+  let cl : Cursor.t list = st.cursors in
+  let sl : string list = st.text in
+  let f : File.name = st.origin in
+  let cs : string = List.fold_left (fun acc c ->
+      (Cursor.string_of_t c) ^ "; " ^ acc
+    ) "" cl in
+  let ss : string = List.fold_left (fun acc s ->
+      s ^ "\\n\n" ^ acc
+    ) "" sl in
+  let fs : string = File.string_of_file f in
+  "[State object with cursors [" ^ cs ^
+  "] and text [\n" ^ ss ^
+  "] and file name [" ^ fs ^ "]]"
 
 (* CURSOR GETTERS AND SETTERS *)
 
@@ -274,23 +292,32 @@ let add_delete (st : t) (cid : Cursor.id) : bool =
 (* [add st c ch] inserts in [st] the char [ch] at cursor [c].
  * false if no changed occured, for example because of backspace at start. *)
 let add (st : t) (cid : Cursor.id) (ch : char) : bool =
+  pd "State.add: Starting add on";
+  pd (string_of_t st);
   let ci : int = Char.code ch in
   if ci = 8 then add_backspace st cid else
   if ci = 10 then add_return st cid else
   if ci = 127 then add_delete st cid else
   if ci >= 32 && ci <= 126 then
-    match get_cursor st cid with
-    | None -> false
-    | Some c -> let x, y = Cursor.x c, Cursor.y c in
-      let cur : row = coerce (ith st y) in
-      let (safe, nudged) : string * string = cut_at cur x in
-      let (before, _, after) : row list * row list * row list =
-          triptych st.text y 1 in
-      st.text <- before @ [safe ^ (Char.escaped ch) ^ nudged] @ after;
-      let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
-        get_cursors_after_on_row st cid in
-      st.cursors <- unaffected @ (List.map Cursor.r after_on_row);
-      true
+    begin
+      pd "State.add: Adding standard character";
+      match get_cursor st cid with
+      | None -> false
+      | Some c -> let x, y = Cursor.x c, Cursor.y c in
+        pd "State.add: Using coordinates: ";
+        pdi [x; y];
+        let cur : row = coerce (ith st y) in
+        let (safe, nudged) : string * string = cut_at cur x in
+        let (before, _, after) : row list * row list * row list =
+            triptych st.text y 1 in
+        st.text <- before @ [safe ^ (Char.escaped ch) ^ nudged] @ after;
+        let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
+          get_cursors_after_on_row st cid in
+        st.cursors <- unaffected @ (List.map Cursor.r after_on_row);
+        pd "State.add: Finished adding standard character; state changed to";
+        pd (string_of_t st);
+        true
+    end
   else
     false
 
@@ -311,4 +338,8 @@ let blank : unit -> t = fun _ ->
 let instantiate (cid  : Cursor.id)
                 (data : string list)
                 (fn   : File.name) : t =
-  {cursors = [Cursor.new_cursor_from_id cid]; text = data; origin = fn}
+  {cursors = [Cursor.new_cursor_from_id cid]; text = begin
+    match data with
+    | [] -> [""] (* We basically disallow empty states *)
+    | h :: t -> h :: t
+  end; origin = fn}

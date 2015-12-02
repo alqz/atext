@@ -70,13 +70,24 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
   let it : Instruction.t option = interpret ki in
   match it with
   (* Is a valid thing typed at all? If not, just don't bother. *)
-  | None -> listen ()
+  | None -> pd "W.process_key: Interpretation result is not a valid key";
+    listen_key ()
   | Some it' ->
+    pd "W.process_key: Interpretation gave valid result";
     begin
       match Guardian.update_check it' with
-      | `NothingOpened -> raise FileFailedToOpen
-      | `Success -> (* Proceed *) share it'
-      | `InvalidInstruction -> ()
+      | `NothingOpened ->
+        pd "W.process_key: Tried to update state but no state was open";
+        fstop ();
+        raise FileFailedToOpen
+      | `Success -> pd "W.process_key: Successfully updated state";
+        (* fstop (); *)
+        (* share it' *)
+        ()
+      | `Invalid ->
+        pd "W.process_key: Either file name mismatch or invalid ins";
+        fstop ();
+        () (* Proceed as usual *)
     end;
     let open Gui in
     if ki = Leave then stop_listen () else listen_key ()
@@ -86,7 +97,7 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
   listen_ext ()
 and stop_listen : unit -> unit Deferred.t = fun _ ->
   () |> Guardian.close |> ignore;
-  exit 0
+  Pervasives.exit 0
 
 let uncap (arg_list : string list) : unit =
   pd "W.uncap: Start of program";
