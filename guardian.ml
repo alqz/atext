@@ -55,7 +55,6 @@ let update_check (it : Instruction.t)
       | false -> `Invalid
       | true ->
         pd "G.update_check: Change opened state";
-        (*
         (* update the GUI *)
         let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
         (* let my_coords : int * int =
@@ -68,7 +67,6 @@ let update_check (it : Instruction.t)
         pd "G.update_check: About to call Gui.refreshscreen";
         Gui.refreshscreen rows_as_strings other_cursors my_cursor;
         pd "G.update_check: Finished call to Gui.refreshscreen";
-        *)
         `Success
     end
   | None -> `NothingOpened
