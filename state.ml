@@ -13,18 +13,19 @@ type t = {
   origin          : File.name;
 }
 
+let string_of_cursors (st : t) : string = List.fold_left (fun acc c ->
+    acc ^ (Cursor.string_of_t c) ^ "; "
+  ) "" st.cursors
+
+let string_of_text (st : t) : string = List.fold_left (fun acc s ->
+    acc ^ s ^ "[return]\n"
+  ) "" st.text
+
 (* TO STRING FUNCTION FOR DEBUG AND TRANSMIT *)
 let string_of_t (st : t) : string =
-  let cl : Cursor.t list = st.cursors in
-  let sl : string list = st.text in
-  let f : File.name = st.origin in
-  let cs : string = List.fold_left (fun acc c ->
-      (Cursor.string_of_t c) ^ "; " ^ acc
-    ) "" cl in
-  let ss : string = List.fold_left (fun acc s ->
-      s ^ "\\n\n" ^ acc
-    ) "" sl in
-  let fs : string = File.string_of_file f in
+  let cs : string = string_of_cursors st in
+  let ss : string = string_of_text st in
+  let fs : string = File.string_of_file st.origin in
   "[State object with cursors [" ^ cs ^
   "] and text [\n" ^ ss ^
   "] and file name [" ^ fs ^ "]]"
@@ -84,11 +85,11 @@ let coerce (ao : 'a option) : 'a =
 
 (* Verified *)
 let ith (state : t) (i : int) : row option = let t = state.text in
-  if i < List.length t then Some (List.nth t i) else None
+  if i >= 0 && i < List.length t then Some (List.nth t i) else None
 
 (* Verified *)
-let jth (r : row) (i : int) : char option =
-  if i < String.length r then Some (String.get r i) else None
+let jth (r : row) (j : int) : char option =
+  if j >= 0 && j < String.length r then Some (String.get r j) else None
 
 (* Verified *)
 let rows (state : t) : row list = state.text
@@ -116,7 +117,7 @@ let replace_cursor (st : t)
                    : bool =
   match using with
   | None -> false
-  | Some new_c ->
+  | Some new_c -> pdi [Cursor.x new_c; Cursor.y new_c];
     st.cursors <- new_c :: (get_other_cursors st this); true
 
 (* Verified *)
@@ -125,6 +126,8 @@ let inc (st : t) (cid : Cursor.id) : bool =
   | None -> false
   | Some c ->
     let x, y = Cursor.x c, Cursor.y c in
+    pd "State.inc: Using coordinates: ";
+    pdi [x; y];
     let cur_len : int = y |> ith st |> coerce |> String.length in
     let new_c : Cursor.t option =
       if x <= cur_len - 1 then (* within line *)
@@ -140,6 +143,8 @@ let dec (st : t) (cid : Cursor.id) : bool =
   | None -> false
   | Some c ->
     let x, y = Cursor.x c, Cursor.y c in
+    pd "State.dec: Using coordinates: ";
+    pdi [x; y];
     let new_c : Cursor.t option =
       if x >= 1 then (* within line *)
         Some (Cursor.l c)
@@ -155,12 +160,16 @@ let up (st : t) (cid : Cursor.id) : bool =
   | None -> false
   | Some c ->
     let x, y = Cursor.x c, Cursor.y c in
+    pd "State.up: Using coordinates: ";
+    pdi [x; y];
     let new_c : Cursor.t option =
       if y >= 1 then (* within top *)
         let prev_len : int = y - 1 |> ith st |> coerce |> String.length in
-        if x < prev_len then (* within prev line *)
+        if x <= prev_len then (* within prev line *)
           Some (Cursor.u c)
-        else Some (Cursor.move c prev_len (-1))
+        else
+        let this_len : int = y |> ith st |> coerce |> String.length in
+        Some (Cursor.move c (prev_len - this_len) (-1))
       else None
     in replace_cursor st cid new_c
 
@@ -170,12 +179,16 @@ let down (st : t) (cid : Cursor.id) : bool =
   | None -> false
   | Some c ->
     let x, y = Cursor.x c, Cursor.y c in
+    pd "State.down: Using coordinates: ";
+    pdi [x; y];
     let new_c : Cursor.t option =
       if y <= List.length st.text - 1 - 1 then (* within bottom *)
         let next_len : int = y + 1 |> ith st |> coerce |> String.length in
-        if x < next_len then (* within next line *)
-          Some (Cursor.u c)
-        else Some (Cursor.move c next_len 1)
+        if x <= next_len then (* within next line *)
+          Some (Cursor.d c)
+        else
+        let this_len : int = y |> ith st |> coerce |> String.length in
+        Some (Cursor.move c (next_len - this_len) 1)
       else None
     in replace_cursor st cid new_c
 
@@ -217,25 +230,41 @@ let get_cursors_after_row (st : t) (cid : Cursor.id)
 
 (* Warning: throws errors if [i] is not a valid index.
  * Should only be used when [i] is definitely valid. *)
-let cut_at (r : row) (i : int) : string * string =
-  String.sub r 0 i, String.sub r i (String.length r - i)
-let break_at (rl : row list) (i : int) : row list * row list =
-  let rec _break_at rl i acc =
-    match i, rl with
-    | 0, _ -> (List.rev_append acc [], rl)
-    | _, [] -> failwith "Out of list range!"
-    | _, h :: t -> _break_at t (i - 1) (h :: acc)
-  in _break_at rl i []
-let triptych (rl : row list) (i : int) (width : int)
-             : row list * row list * row list =
-  let (chunk1, chunk2) : row list * row list = break_at rl i in
-  let (chunk3, chunk4) : row list * row list = break_at chunk2 width in
+(* Also, cut_at on List.length gives an empty string as the second. *)
+let cut_at (r : string) (i : int) : string * string =
+  let l : int = String.length r in
+  if i < 0 then failwith "Invalid row cut (negative)!" else
+  if i = 0 then "", r else
+  if i < l then String.sub r 0 i, String.sub r i (l - i) else
+  if i = l then r, "" else
+  failwith "Invalid row cut (too far)!"
+let break_at (rl : 'a list) (i : int) : 'a list * 'a list =
+  let rec _break_at rl i acc : 'a list * 'a list =
+    match rl with
+    | [] -> if i = 0 then [], [] else failwith "Invalid list cut!"
+    | h :: t -> if i = 0 then acc, h :: t else
+      if i < 0 then failwith "Invalid list cut!" else
+      _break_at t (i - 1) (h :: acc) in
+  let l : int = List.length rl in
+  if i < 0 then failwith "Invalid list cut (negative)!" else
+  if i = 0 then [], rl else
+  if i < l then let upper, lower = _break_at rl i [] in
+    List.rev_append upper [], lower else
+  if i = l then rl, [] else
+  failwith "Invalid list cut (too far)!"
+let triptych (rl : 'a list) (i : int) (width : int)
+             : 'a list * 'a list * 'a list =
+  let (chunk1, chunk2) : 'a list * 'a list = break_at rl i in
+  let (chunk3, chunk4) : 'a list * 'a list = break_at chunk2 width in
   chunk1, chunk3, chunk4
 
 let add_backspace (st : t) (cid : Cursor.id) : bool =
+  pd "State.add_backspace";
   match get_cursor st cid with
   | None -> false
   | Some c -> let x, y = Cursor.x c, Cursor.y c in
+    pd "State.add_backspace: Using coordinates: ";
+    pdi [x; y];
     if x = 0 then (* head of line *)
       if y = 0 then false (* head of doc *)
       else (* merge rows up *)
@@ -249,9 +278,10 @@ let add_backspace (st : t) (cid : Cursor.id) : bool =
         let (after_on_row, _) : Cursor.t list * Cursor.t list =
           get_cursors_after_on_row st cid in
         let (after_row, _) : Cursor.t list * Cursor.t list =
-          get_cursors_after_on_row st cid in
+          get_cursors_after_row st cid in
         st.cursors <- unaffected @ (Cursor.ship after_row 0 (-1)) @
                       (Cursor.ship after_on_row (String.length prev) (-1));
+        pdx true (string_of_t st);
         true
     else (* shift one left *)
       let cur : row = coerce (ith st y) in
@@ -263,12 +293,16 @@ let add_backspace (st : t) (cid : Cursor.id) : bool =
       let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
         get_cursors_after_on_row st cid in
       st.cursors <- unaffected @ (List.map Cursor.l after_on_row);
+      pdx true (string_of_t st);
       true
 
 let add_return (st : t) (cid : Cursor.id) : bool =
+  pd "State.add_return";
   match get_cursor st cid with
   | None -> false
   | Some c -> let x, y = Cursor.x c, Cursor.y c in
+    pd "State.add_return: Using coordinates: ";
+    pdi [x; y];
     let cur : row = coerce (ith st y) in
     let (safe, pushed) : string * string = cut_at cur x in
     let (before, _, after) : row list * row list * row list =
@@ -279,12 +313,14 @@ let add_return (st : t) (cid : Cursor.id) : bool =
     let (after_on_row, _) : Cursor.t list * Cursor.t list =
       get_cursors_after_on_row st cid in
     let (after_row, _) : Cursor.t list * Cursor.t list =
-      get_cursors_after_on_row st cid in
+      get_cursors_after_row st cid in
     st.cursors <- unaffected @ (Cursor.ship after_row 0 1) @
                   (Cursor.ship after_on_row (0 - (String.length safe)) 1);
+    pdx true (string_of_t st);
     true
 
 let add_delete (st : t) (cid : Cursor.id) : bool =
+  pd "State.add_delete";
   match inc st cid with
   | false -> false
   | true -> add_backspace st cid
@@ -292,13 +328,13 @@ let add_delete (st : t) (cid : Cursor.id) : bool =
 (* [add st c ch] inserts in [st] the char [ch] at cursor [c].
  * false if no changed occured, for example because of backspace at start. *)
 let add (st : t) (cid : Cursor.id) (ch : char) : bool =
-  pd "State.add: Starting add on";
-  pd (string_of_t st);
+  pd "State.add: Starting add";
   let ci : int = Char.code ch in
+  pd ("State.add: Using character index " ^ (string_of_int ci));
   if ci = 8 then add_backspace st cid else
   if ci = 10 then add_return st cid else
-  if ci = 127 then add_delete st cid else
-  if ci >= 32 && ci <= 126 then
+  if ci = 127 || ci = 126 then add_delete st cid else
+  if ci >= 32 && ci <= 125 then
     begin
       pd "State.add: Adding standard character";
       match get_cursor st cid with
@@ -314,8 +350,9 @@ let add (st : t) (cid : Cursor.id) (ch : char) : bool =
         let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
           get_cursors_after_on_row st cid in
         st.cursors <- unaffected @ (List.map Cursor.r after_on_row);
-        pd "State.add: Finished adding standard character; state changed to";
-        pd (string_of_t st);
+        pdx false
+          "State.add: Finished adding standard character; state changed to";
+        pdx true (string_of_t st);
         true
     end
   else
@@ -338,8 +375,7 @@ let blank : unit -> t = fun _ ->
 let instantiate (cid  : Cursor.id)
                 (data : string list)
                 (fn   : File.name) : t =
-  {cursors = [Cursor.new_cursor_from_id cid]; text = begin
-    match data with
-    | [] -> [""] (* We basically disallow empty states *)
-    | h :: t -> h :: t
-  end; origin = fn}
+  {cursors = [Cursor.new_cursor_from_id cid];
+    (* We basically disallow empty states. *)
+    text = if data = [] then [""] else data;
+    origin = fn}

@@ -50,7 +50,7 @@ let open_lines (n : name) : string list =
   let rec read_lines (chn : in_channel) (acc : string list) : string list =
     try read_lines chn (input_line chn :: acc)
     with End_of_file -> acc
-  in let lines : string list = read_lines chn [] in
+  in let lines : string list = List.rev_append (read_lines chn []) [] in
   pd "File.open_lines: Things have been read";
   close_in chn; lines
 
@@ -62,7 +62,7 @@ let save_lines (n : name) (data : string list) : unit =
   let chn : out_channel = out_chn_of_name n in
   let rec write_lines (chn : out_channel) (pile : string list) : unit =
     match pile with
-    | [] -> ()
+    | [] -> failwith "Cannot be pure empty!"
     | h :: [] -> output_string chn h
     | h :: t -> output_string chn h; output_char chn '\n';
       write_lines chn t
