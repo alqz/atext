@@ -77,14 +77,18 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
   match !opened with
   | None -> pd "G.unfold: Currently nothing opened";
     let cid : Cursor.id = Cursor.gen_id () in
-    let (file, data) : File.name * string list = match fn with
+    let (file, data) : File.name * string list =
+      match fn with
       | None -> File.default (), [""]
       | Some fn -> pd "G.unfold: Generating state from file";
         fn, try
           File.open_lines fn
         with File.FileNotFound _ -> (ignore (File.create fn); [""])
     in pd "G.unfold: successfully initialized state";
-    me := cid; opened := Some (State.instantiate cid data file); `Success
+    me := cid;
+    opened := Some (State.instantiate cid data file);
+    pd "G.unfold: successfully instantiated state";
+    `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 
 (* Note that the cid in me is ignored. *)

@@ -335,11 +335,9 @@ let rec read (s : string) : row list =
 let blank : unit -> t = fun _ ->
   {cursors = []; text = [""]; origin = File.default ()}
 
-let instantiate (cid  : Cursor.id)
-                (data : string list)
-                (fn   : File.name) : t =
-  {cursors = [Cursor.new_cursor_from_id cid]; text = begin
-    match data with
-    | [] -> [""] (* We basically disallow empty states *)
-    | h :: t -> h :: t
-  end; origin = fn}
+let instantiate (cid : Cursor.id) (data : string list) (fn : File.name) : t = {
+    cursors = [Cursor.new_cursor_from_id cid];
+    (* We basically disallow empty states *)
+    text = if data = [] then [""] else data;
+    origin = fn;
+  }
