@@ -237,6 +237,9 @@ let poll_keyboard () : input Deferred.t =
   buf := "___";
   result
 
+let terminate () : unit =
+  endwin()
+
 (* For testing only *)
 let pausescreen () : unit =
   let _ = nodelay win false in

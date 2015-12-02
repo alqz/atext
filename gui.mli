@@ -29,6 +29,8 @@ non-blocking get the key typed by the user.
 *)
 val poll_keyboard : unit -> input Deferred.t
 
+val terminate: unit -> unit
+
 (* functions below are for debugging *)
 
 (* pause the screen after a call to refreshcreen to see the results *)
