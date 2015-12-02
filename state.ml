@@ -82,10 +82,12 @@ let coerce (ao : 'a option) : 'a =
   | Some a -> a
   | None -> failwith "Bad coercion!"
 
+(* get ith row from state *)
 (* Verified *)
 let ith (state : t) (i : int) : row option = let t = state.text in
   if i < List.length t then Some (List.nth t i) else None
 
+(* get character of coord (i,j) in state *)
 (* Verified *)
 let jth (r : row) (i : int) : char option =
   if i < String.length r then Some (String.get r i) else None
@@ -219,6 +221,7 @@ let get_cursors_after_row (st : t) (cid : Cursor.id)
  * Should only be used when [i] is definitely valid. *)
 let cut_at (r : row) (i : int) : string * string =
   String.sub r 0 i, String.sub r i (String.length r - i)
+(* splits rows into two parts *)
 let break_at (rl : row list) (i : int) : row list * row list =
   let rec _break_at rl i acc =
     match i, rl with

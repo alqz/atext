@@ -5,4 +5,4 @@ let pdi (il : int list) : unit =
       acc ^ (string_of_int i) ^ "; ") "" il in
   pd istring
 
-let fstop : unit -> unit = fun _ -> ignore (Pervasives.exit 0)
+let fstop () = Pervasives.exit 0
