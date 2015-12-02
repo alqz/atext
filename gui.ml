@@ -153,7 +153,7 @@ let displayline (line : string) : unit =
     end
     else
       (* The line fits within the screen after hoffset *)
-      ignore(addstr (String.sub line !hoffset (l - !hoffset - 1)))
+      ignore(addstr (String.sub line !hoffset (l - !hoffset)))
   end
   else (* the line entirely to the left of the current view *)
       ()
@@ -215,26 +215,29 @@ let string_to_clist str =
     aux (inx - 1) str ((String.get str inx) :: lst) in
   aux (String.length str - 1) str []
 
-(* Buffer of size 3 to read characters into *)
-let buf = ref "123"
+let code_str lst =
+  let rec aux str = function
+  | [] -> str
+  | h :: t -> aux (str ^ " " ^(string_of_int (Char.code h))) t in
+  aux "" lst
 
 let poll_keyboard () : input Deferred.t =
-  Reader.read std (!buf) >>= fun status ->
+  let buf = String.make 3 '_' in
+  Reader.read std buf >>= fun status ->
   if status = `Eof then failwith "stdin disconnected" else
-  let info = List.map Char.code (string_to_clist (!buf)) in
+  let info = List.map Char.code (string_to_clist buf) in
   let result =
     match info with
     | [8  ; 95; 95] -> return Backspace
     | [13 ; 95; 95] -> return Enter
     | [127; 95; 95] -> return Delete
-    | [27 ; 79; 65] -> return Up
-    | [27 ; 79; 66] -> return Down
-    | [27 ; 79; 68] -> return Left
-    | [27 ; 79; 67] -> return Right
+    | [27 ; 91; 65] -> return Up
+    | [27 ; 91; 66] -> return Down
+    | [27 ; 91; 68] -> return Left
+    | [27 ; 91; 67] -> return Right
     | [27 ; 95; 95] -> return Leave
     | [id ; 95; 95] -> return (Character(Char.chr id))
-    | _ -> return Nothing in
-  buf := "___";
+    | _ -> print_endline ((buf) |> string_to_clist |> code_str); return Nothing in
   result
 
 (* For testing only *)

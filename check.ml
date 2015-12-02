@@ -28,11 +28,10 @@ let testlines = ref []
 
 let std = Lazy.force (Reader.stdin)
 
-let buf = ref "___"
-
 let rec check () =
-  Reader.read std (!buf) >>= fun _ ->
-  testlines:=((!buf) |> string_to_clist |> code_str):: (!testlines);
+  let buf = String.make 3 '_' in
+  Reader.read std (buf) >>= fun _ ->
+  testlines:=((buf) |> string_to_clist |> code_str):: (!testlines);
   refreshscreen (!testlines) [] (Cursor.new_cursor());
   check ()
 
