@@ -55,6 +55,7 @@ let update_check (it : Instruction.t)
       | false -> `Invalid
       | true ->
         pd "G.update_check: Change opened state";
+        (*
         (* update the GUI *)
         let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
         (* let my_coords : int * int =
@@ -67,6 +68,7 @@ let update_check (it : Instruction.t)
         pd "G.update_check: About to call Gui.refreshscreen";
         Gui.refreshscreen rows_as_strings other_cursors my_cursor;
         pd "G.update_check: Finished call to Gui.refreshscreen";
+        *)
         `Success
     end
   | None -> `NothingOpened
@@ -82,9 +84,13 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
       | Some fn -> pd "G.unfold: Generating state from file";
         fn, try
           File.open_lines fn
-        with File.FileNotFound _ -> (ignore (File.create fn); [""])
-    in pd "G.unfold: successfully initialized state";
-    me := cid; opened := Some (State.instantiate cid data file); `Success
+        with File.FileNotFound _ ->
+          pd "G.unfold: No file with name; creating new";
+          (ignore (File.create fn); [""])
+    in let new_state : State.t = State.instantiate cid data file in
+    pd "G.unfold: successfully initialized state to";
+    me := cid; opened := Some new_state;
+    pd (State.string_of_t new_state); `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 
 (* Note that the cid in me is ignored. *)

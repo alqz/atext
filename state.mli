@@ -60,5 +60,7 @@ val blank : unit -> t
 val instantiate : Cursor.id -> string list -> File.name -> t
 
 (* For debug and for transmission. *)
-(* val string_of_t : t -> string *)
+val string_of_t : t -> string
+val string_of_text : t -> string
+val string_of_cursors : t -> string
 (* val decode : string -> t *)

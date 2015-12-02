@@ -1,4 +1,6 @@
 let pd (s : string) : unit = print_endline ("[D> " ^ s ^ "]")
+let pdx (whether : bool) (s : string) : unit =
+  if whether then print_endline ("[D> " ^ s ^ "]") else ()
 
 let pdi (il : int list) : unit =
   let istring : string = List.fold_left (fun acc i ->
