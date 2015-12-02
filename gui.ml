@@ -224,7 +224,8 @@ let poll_keyboard () : input Deferred.t =
     match info with
     | [8  ; 95; 95] -> return Backspace
     | [13 ; 95; 95] -> return Enter
-    | [127; 95; 95] -> return Delete
+    | [127; 95; 95] when Sys.os_type = "Win32" -> return Delete
+    | [127; 95; 95] -> return Backspace
     | [27 ; 91; 65] -> return Up
     | [27 ; 91; 66] -> return Down
     | [27 ; 91; 68] -> return Left
