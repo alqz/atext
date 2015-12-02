@@ -215,12 +215,6 @@ let string_to_clist str =
     aux (inx - 1) str ((String.get str inx) :: lst) in
   aux (String.length str - 1) str []
 
-let code_str lst =
-  let rec aux str = function
-  | [] -> str
-  | h :: t -> aux (str ^ " " ^(string_of_int (Char.code h))) t in
-  aux "" lst
-
 let poll_keyboard () : input Deferred.t =
   let buf = String.make 3 '_' in
   Reader.read std buf >>= fun status ->
@@ -237,7 +231,7 @@ let poll_keyboard () : input Deferred.t =
     | [27 ; 91; 67] -> return Right
     | [27 ; 95; 95] -> return Leave
     | [id ; 95; 95] -> return (Character(Char.chr id))
-    | _ -> print_endline ((buf) |> string_to_clist |> code_str); return Nothing in
+    | _ -> return Nothing in
   result
 
 (* For testing only *)
