@@ -102,6 +102,9 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
   listen_ext ()
 
 and stop_listen : unit -> unit Deferred.t = fun _ ->
+  (* Clear the GUI *)
+  (* Gui.refreshscreen [] [] (Cursor.new_cursor ()); *)
+  Gui.terminate ();
   () |> Guardian.close |> ignore;
   Pervasives.exit 0
 
