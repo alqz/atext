@@ -7,9 +7,9 @@ let pdi (il : int list) : unit =
   pd istring
 
 (* Uncomment these to no print. *)
-(* let pd (s : string) : unit = () *)
-(* let pdx (whether : bool) (s : string) : unit = () *)
-(* let pdi (il : int list) : unit = () *)
+let pd (s : string) : unit = ()
+let pdx (whether : bool) (s : string) : unit = ()
+let pdi (il : int list) : unit = ()
 
 let fstop () = Pervasives.exit 0
 

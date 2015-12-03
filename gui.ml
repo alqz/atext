@@ -223,15 +223,16 @@ let poll_keyboard () : input Deferred.t =
   let info = List.map Char.code (string_to_clist buf) in
   let result =
     match info with
-    | [8  ; 95; 95] -> return Backspace
-    | [13 ; 95; 95] -> return Enter
-    | [127; 95; 95] -> return Delete
-    | [27 ; 91; 65] -> return Up
-    | [27 ; 91; 66] -> return Down
-    | [27 ; 91; 68] -> return Left
-    | [27 ; 91; 67] -> return Right
-    | [27 ; 95; 95] -> return Leave
-    | [id ; 95; 95] -> return (Character(Char.chr id))
+    | [  8; 95; 95] -> return Backspace
+    | [ 13; 95; 95] -> return Enter
+    | [127; 95; 95] -> if Sys.os_type = "Win32" then return Delete
+                       else return Backspace
+    | [ 27; 91; 65] -> return Up
+    | [ 27; 91; 66] -> return Down
+    | [ 27; 91; 68] -> return Left
+    | [ 27; 91; 67] -> return Right
+    | [ 27; 95; 95] -> return Leave
+    | [ id; 95; 95] -> return (Character(Char.chr id))
     | _ -> return Nothing in
   result
 
