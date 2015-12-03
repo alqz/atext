@@ -118,7 +118,7 @@ let scroll (y_new : int) (x_new : int) : unit =
   );
 
   (* new scroll right *)
-  while (x_new > (!hoffset + x_max)) do
+  while (x_new > (!hoffset + x_max - 1)) do
     hoffset := !hoffset + x_max + 1
   done;
   (* old scroll right *)
@@ -131,7 +131,7 @@ let scroll (y_new : int) (x_new : int) : unit =
     ()
   ); *)
 
-  (* new scroll right *)
+  (* new scroll left *)
   while (x_new < !hoffset) do
     hoffset := !hoffset - x_max - 1
   done
@@ -154,19 +154,22 @@ let displayline (line : string) : unit =
   let l = String.length line in
   if (l > !hoffset) then
   begin
-    if (l > (!hoffset + 80)) then
+    if (l >= (!hoffset + 80)) then
     (* The line has characters to the right of the current view *)
     begin
       (* print_endline "yup!"; *)
-      ignore(addstr (String.sub line (!hoffset) 79))
+      ignore(addstr (String.sub line (!hoffset) 80))
 
     end
     else
       (* The line fits within the screen after hoffset *)
-      ignore(addstr (String.sub line !hoffset (l - !hoffset)))
+      begin
+      ignore(addstr (String.sub line !hoffset (l - !hoffset)));
+      ignore(addstr "\n")
+    end
   end
   else (* the line entirely to the left of the current view *)
-      ()
+      ignore(addstr "\n")
 
   (* ignore (addstr (line ^ "\n")) *)
 
@@ -194,7 +197,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
     | h::t ->
       begin
         displayline h;
-        ignore(addstr "\n");
+        (* ignore(addstr "\n"); *)
         lines := t
       end
   done;
