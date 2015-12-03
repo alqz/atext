@@ -170,8 +170,8 @@ let up (st : t) (cid : Cursor.id) : bool =
         if x <= prev_len then (* within prev line *)
           Some (Cursor.u c)
         else
-        let this_len : int = y |> ith st |> coerce |> String.length in
-        Some (Cursor.move c (prev_len - this_len) (-1))
+        (* let this_len : int = y |> ith st |> coerce |> String.length in *)
+        Some (Cursor.move c (prev_len - x) (-1))
       else None
     in replace_cursor st cid new_c
 
@@ -189,8 +189,8 @@ let down (st : t) (cid : Cursor.id) : bool =
         if x <= next_len then (* within next line *)
           Some (Cursor.d c)
         else
-        let this_len : int = y |> ith st |> coerce |> String.length in
-        Some (Cursor.move c (next_len - this_len) 1)
+        (* let this_len : int = y |> ith st |> coerce |> String.length in *)
+        Some (Cursor.move c (next_len - x) 1)
       else None
     in replace_cursor st cid new_c
 

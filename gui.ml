@@ -210,6 +210,9 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
   x_prev := x_new;
   ignore(refresh())
 
+(* Uncomment this to disable GUI. *)
+(* let refreshscreen a b c : unit = () *)
+
 let string_to_clist str =
   let rec aux inx str lst =
     if inx < 0 then lst else
