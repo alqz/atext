@@ -1,15 +1,18 @@
-let pd (s : string) : unit = print_endline ("[D> " ^ s ^ "]")
+(* Set to false to no prints. *)
+let debug : bool = false
+
+let pd (s : string) : unit =
+  if not debug then () else print_endline ("[D> " ^ s ^ "]")
+
 let pdx (whether : bool) (s : string) : unit =
+  if not debug then () else
   if whether then print_endline ("[D> " ^ s ^ "]") else ()
+
 let pdi (il : int list) : unit =
+  if not debug then () else
   let istring : string = List.fold_left (fun acc i ->
       acc ^ (string_of_int i) ^ "; ") "" il in
   pd istring
-
-(* Uncomment these to no print. *)
-(* let pd (s : string) : unit = () *)
-(* let pdx (whether : bool) (s : string) : unit = () *)
-(* let pdi (il : int list) : unit = () *)
 
 let fstop () = Pervasives.exit 0
 

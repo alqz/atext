@@ -23,9 +23,9 @@ let x_prev = ref 0
 let max_colors = 6
 
 let init (args : string list) : unit =
-  let _ = (keypad win true) in ();
-  let _ = (nodelay win true) in ();
-  let _ = noecho () in ();
+  (* let _ = (keypad win true) in (); *)
+  (* let _ = (nodelay win true) in (); *)
+  (* let _ = noecho () in (); *)
   let _ = start_color () in ();
   let _ = init_pair 1 Color.black Color.red in ();
   let _ = init_pair 2 Color.black Color.yellow in ();
