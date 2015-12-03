@@ -71,6 +71,7 @@ and listen_ext : unit -> unit Deferred.t = fun _ ->
  * whether it was accepted, Some, or rejected, None. *)
 and process_key_input (ki : Gui.input) : unit Deferred.t =
   pd "W.process_key: key input detected";
+  if ki = Gui.Leave then stop_listen () else
   let it : Instruction.t option =
     interpret ki in
   match it with
@@ -94,8 +95,7 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
         pd "W.process_key: Either file name mismatch or invalid ins";
         () (* Proceed as usual *)
     end;
-    let open Gui in
-    if ki = Leave then stop_listen () else listen_key ()
+    listen_key ()
 
 and process_ext_input (it : Instruction.t) : unit Deferred.t =
   pd "W.process_key: key input detected";
