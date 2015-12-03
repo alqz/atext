@@ -103,7 +103,6 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
 
 and stop_listen : unit -> unit Deferred.t = fun _ ->
   (* Clear the GUI *)
-  (* Gui.refreshscreen [] [] (Cursor.new_cursor ()); *)
   Gui.terminate ();
   () |> Guardian.close |> ignore;
   Pervasives.exit 0
@@ -123,8 +122,5 @@ let uncap (arg_list : string list) : unit =
 
 (* To run with new file, use: *)
 let _ = uncap (List.tl (Array.to_list Sys.argv))
-
-(* To run with command line arguments, use the following: *)
-(* uncap (Array.to_list Sys.argv);; *)
 
 let _ = Scheduler.go ()

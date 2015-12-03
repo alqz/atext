@@ -1,3 +1,4 @@
+open Auxiliary
 open Async.Std
 open Curses
 
@@ -220,7 +221,15 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
 
   y_prev := y_new;
   x_prev := x_new;
-  ignore(refresh())
+
+  let _ = refresh () in
+
+  let other_c_coords : string = List.fold_left (fun acc c ->
+      acc ^ (Cursor.string_of_t c) ^ "; "
+    ) "" othercursors in
+  pd (string_of_int (List.length othercursors));
+  pd other_c_coords;
+  ()
 
 (* Uncomment this to disable GUI. *)
 (* let refreshscreen a b c : unit = () *)

@@ -56,6 +56,8 @@ let new_cursor_from_id (id : id) : t = (id, (0, 0))
 
 let new_cursor : unit -> t = fun _ -> () |> gen_id |> new_cursor_from_id
 
+let instantiate (id : id) (x : int) (y : int) : t = (id, (x, y))
+
 let u ((id, (x, y)) : t) : t = id, (x, y - 1)
 let d ((id, (x, y)) : t) : t = id, (x, y + 1)
 let l ((id, (x, y)) : t) : t = id, (x - 1, y)

@@ -21,6 +21,8 @@ val y : t -> int
 val gen_id : unit -> id
 val new_cursor_from_id : id -> t
 val new_cursor : unit -> t
+(* Instantiate does the same as new_cursor but takes in info. *)
+val instantiate : id -> int -> int -> t
 
 (* Mainly for transmission purposes. *)
 val string_of_id : id -> string

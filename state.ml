@@ -375,9 +375,29 @@ let blank : unit -> t = fun _ ->
   {cursors = []; text = [""]; origin = File.default ()}
 
 let instantiate (cid  : Cursor.id)
-                (data : string list)
-                (fn   : File.name) : t =
-  {cursors = [Cursor.new_cursor_from_id cid];
+  (data : string list) (fn   : File.name) : t = {
+    cursors = [
+      Cursor.new_cursor_from_id cid;
+      Cursor.instantiate (Cursor.gen_id ()) 0 1;
+      Cursor.instantiate (Cursor.gen_id ()) 5 1;
+      Cursor.instantiate (Cursor.gen_id ()) 5 4];
     (* We basically disallow empty states. *)
     text = if data = [] then [""] else data;
     origin = fn}
+
+(* Checks that state follows the invariant.
+ * Returns one of the following:
+ *   `DuplicatedCursorID
+ *   `CursorOutOfRange
+ *   `EmptyFileName: origin = ""
+ *   `EmptyCursors: cursors = []
+ *   `EmptyText: text = []
+ * There may be some others.
+ *)
+let invariant (st : t) : [>
+  | `DuplicatedCursorID
+  | `CursorOutOfRange
+  | `EmptyFileName
+  | `EmptyCursors
+  | `EmptyText] =
+  failwith "Unimplemented"

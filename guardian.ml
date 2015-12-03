@@ -66,7 +66,9 @@ let update_check (it : Instruction.t)
           List.map State.string_of_row (State.rows st) in
         pd "G.update_check: About to call Gui.refreshscreen";
         Gui.refreshscreen rows_as_strings other_cursors my_cursor;
-        pd "G.update_check: Finished call to Gui.refreshscreen";
+        pd "G.update_check: Finished call of Gui.refreshscreen";
+        pd "G.update_check: Number of cursors on board is one plus";
+        pd (string_of_int (List.length other_cursors));
         `Success
     end
   | None -> `NothingOpened
