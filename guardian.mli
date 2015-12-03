@@ -24,6 +24,8 @@ val pen_filter : State.t -> Instruction.t list -> Instruction.t list
 val update_check : Instruction.t ->
   [> `NothingOpened | `Invalid | `Success]
 
+val output : unit -> [> `NothingOpened | `Success]
+
 (* DISABLED FUNCTIONS
 
 val dictate_open : Instruction.t list Deferred.t -> Instruction.t list Deferred.t

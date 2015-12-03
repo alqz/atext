@@ -47,28 +47,27 @@ let coerce (ao : 'a option) : 'a =
   | Some a -> a
   | None -> failwith "Bad coercion!"
 
+let output : unit -> [> `NothingOpened | `Success] = fun _ ->
+  match !opened with
+  | None -> `NothingOpened
+  | Some st -> pd "G.output: Change opened state";
+    let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
+    let other_cursors : Cursor.t list = State.get_other_cursors st !me in
+    let rows_as_strings : string list =
+      List.map State.string_of_row (State.rows st) in
+    Gui.refreshscreen rows_as_strings other_cursors my_cursor;
+    pd "G.update_check: Finished call of Gui.refreshscreen";
+    pd "G.update_check: Number of cursors on board is one plus";
+    pd (string_of_int (List.length other_cursors));
+    `Success
+
 let update_check (it : Instruction.t)
                 : [> `NothingOpened | `Invalid | `Success] =
   pd "G.update_check: Starting update of state";
   match !opened with
   | Some st -> begin match pen_check st it with
       | false -> `Invalid
-      | true ->
-        pd "G.update_check: Change opened state";
-        (* update the GUI *)
-        let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
-        (* let my_coords : int * int =
-          Cursor.x my_cursor, Cursor.y my_cursor in *)
-        let other_cursors : Cursor.t list = State.get_other_cursors st !me in
-        (* let other_coords : (int * int) list = List.fold_left (fun cl c ->
-          (Cursor.x c, Cursor.y c) :: cl) [] other_cursors in *)
-        let rows_as_strings : string list =
-          List.map State.string_of_row (State.rows st) in
-        pd "G.update_check: About to call Gui.refreshscreen";
-        Gui.refreshscreen rows_as_strings other_cursors my_cursor;
-        pd "G.update_check: Finished call of Gui.refreshscreen";
-        pd "G.update_check: Number of cursors on board is one plus";
-        pd (string_of_int (List.length other_cursors));
+      | true -> output () |> ignore; (* should always `Success *)
         `Success
     end
   | None -> `NothingOpened
@@ -92,12 +91,8 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
     me := cid; opened := Some new_state;
     pd (State.string_of_t new_state);
     (* Starting the GUI *)
-    let my_cursor : Cursor.t = coerce (State.get_cursor new_state cid) in
-    let other_cursors : Cursor.t list = State.get_other_cursors new_state cid in
-    let rows_as_strings : string list =
-      List.map State.string_of_row (State.rows new_state) in
     Gui.init [];
-    Gui.refreshscreen rows_as_strings other_cursors my_cursor;
+    output () |> ignore; (* should always `Success *)
     `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 

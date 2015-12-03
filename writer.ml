@@ -106,23 +106,98 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
 and stop_listen : unit -> unit Deferred.t = fun _ ->
   (* Clear the GUI *)
   Gui.terminate ();
-  () |> Guardian.close |> ignore;
+  Guardian.close () |> ignore;
+  print_endline "Exiting from program...";
   Pervasives.exit 0
 
 let uncap (arg_list : string list) : unit =
   pd "W.uncap: Start of program";
+  let start_delay : Core.Std.Time.Span.t = Core.Std.sec 1.2 in
+  let default_collaborator_limit : int = 7 in
+
   begin (* examine user input arguments *)
     match arg_list with
+
     | [] ->
-      pd "W.uncap: with no arguments";
-      Guardian.unfold None |> ignore
-    | h::t ->
-      pd ("W.uncap: with argument " ^ h);
-      Guardian.unfold (Some (File.file_of_string h)) |> ignore
-  end;
-  pd "W.uncap: finished initialization; going to listen";
-  listen () >>> fun _ ->
-  ()
+      print_endline "Initializing new file in offline mode...";
+
+      after start_delay >>= fun _ ->
+      return (Guardian.unfold None |> ignore)
+
+    | filename :: [] ->
+      print_endline (
+        "Initializing in offline mode using file " ^
+        filename ^ "...");
+
+      after start_delay >>= fun _ ->
+      return (
+        Guardian.unfold (
+          Some (File.file_of_string filename)
+        ) |> ignore)
+
+    | "host" :: port :: filename :: [] ->
+      print_endline (
+        "Initializing in host mode using file " ^ filename ^
+        " at port " ^ port ^ "...");
+      let port' : int = int_of_string port in
+      let server_result : int Deferred.t =
+        Server.init_server port' default_collaborator_limit in
+
+      server_result >>= fun i ->
+      if i = 0 (* success *) then begin
+        print_endline (
+          "Host server successfully started at port " ^ port ^ "...");
+        after start_delay >>= fun _ ->
+        return (
+          Guardian.unfold (
+            Some (File.file_of_string filename)
+          ) |> ignore)
+      end else (* failed to start server *)
+      let _ = List.map print_endline [
+        "Host server could not be started.";
+        "Please check your port number. Choose a number greater than 6000.";
+        "Exiting..."] in
+      after start_delay >>= fun _ ->
+        Pervasives.exit 0
+
+    | "guest" :: address :: port :: [] ->
+      print_endline (
+        "Initializing in guest mode using address " ^ address ^
+        " at port " ^ port ^ "...");
+      let port' : int = int_of_string port in
+      let server_result : int Deferred.t =
+        Server.init_client address port' in
+      server_result >>= fun i ->
+      if i = 0 (* success *) then begin
+        print_endline (
+          "Guest connection successfully made...");
+        after start_delay >>= fun _ ->
+        return (Guardian.unfold None |> ignore) (* Need to receive state! *)
+      end else (* failed to start server *)
+      let _ = List.map print_endline [
+        "Guest connection could not be made.";
+        "Please check your address and port numbers.";
+        "Exiting..."] in
+      after start_delay >>= fun _ ->
+        Pervasives.exit 0
+
+    | _ ->
+      let _ = List.map print_endline [
+          "You have entered invalid arguments.";
+          "Use one of the following:";
+          "  cs3110 run writer -- [filename]";
+          "  cs3110 run writer -- host [port] [filename]";
+          "  cs3110 run writer -- guest [ip or dns address]";
+          "Exiting..."
+        ] in
+      after start_delay >>= fun _ ->
+        Pervasives.exit 0 (* not debug! *)
+
+  end >>> begin fun _ ->
+    pd "W.uncap: finished initialization; going to listen";
+    let _ = listen () in
+    ()
+  end
 
 (* To run with new file, use: *)
 let _ = uncap (List.tl (Array.to_list Sys.argv))
