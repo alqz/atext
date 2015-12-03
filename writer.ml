@@ -29,7 +29,8 @@ let interpret (gi : Gui.input) : Instruction.t option =
     | Nothing -> None
   in match op with
   | Some op' ->
-    let open Instruction in Some {op = op'; cursor = me; file = fn}
+    let open Instruction in
+    Some {op = op'; cursor = me; file = fn}
   | None -> None
 
 let rec share (it : Instruction.t) : unit =
@@ -50,55 +51,75 @@ let rec listen : unit -> unit Deferred.t = fun _ ->
   let _ : unit Deferred.t =
     ext_input_d >>= process_ext_input in
   return ()
+
 and listen_key : unit -> unit Deferred.t = fun _ ->
   let key_input_d : Gui.input Deferred.t =
     Gui.poll_keyboard () in
   let _ : unit Deferred.t =
     key_input_d >>= process_key_input in
   return ()
+
 and listen_ext : unit -> unit Deferred.t = fun _ ->
   let ext_input_d : Instruction.t Deferred.t =
     Server.occumulated_instruction () in
   let _ : unit Deferred.t =
     ext_input_d >>= process_ext_input in
   return ()
+
 (* Processes the input from GUI.
  * Returns an instruction, that should be sent depending on
  * whether it was accepted, Some, or rejected, None. *)
 and process_key_input (ki : Gui.input) : unit Deferred.t =
   pd "W.process_key: key input detected";
-  let it : Instruction.t option = interpret ki in
+  if ki = Gui.Leave then stop_listen () else
+  let it : Instruction.t option =
+    interpret ki in
   match it with
   (* Is a valid thing typed at all? If not, just don't bother. *)
-  | None -> listen ()
+  | None ->
+    pd "W.process_key: Interpretation result is not a valid key";
+    listen_key ()
   | Some it' ->
+    pd "W.process_key: Interpretation gave valid result";
     begin
       match Guardian.update_check it' with
-      | `NothingOpened -> raise FileFailedToOpen
-      | `Success -> (* Proceed *) share it'
-      | `InvalidInstruction -> ()
+      | `NothingOpened ->
+        pd "W.process_key: Tried to update state but no state was open";
+        fstop ();
+        raise FileFailedToOpen
+      | `Success -> pd "W.process_key: Successfully updated state";
+        (* share it' *)
+        ()
+      | `Invalid ->
+        pd "W.process_key: Either file name mismatch or invalid ins";
+        () (* Proceed as usual *)
     end;
-    let open Gui in
-    if ki = Leave then stop_listen () else listen_key ()
+    listen_key ()
+
 and process_ext_input (it : Instruction.t) : unit Deferred.t =
   pd "W.process_key: key input detected";
   ignore (Guardian.update_check it);
   listen_ext ()
+
 and stop_listen : unit -> unit Deferred.t = fun _ ->
   () |> Guardian.close |> ignore;
-  exit 0
+  Pervasives.exit 0
 
 let uncap (arg_list : string list) : unit =
   pd "W.uncap: Start of program";
   match arg_list with
-  | [] -> pd "W.uncap: with no arguments"; Guardian.unfold None |> ignore
-  | h::t -> pd ("W.uncap: with argument " ^ h);
+  | [] ->
+    pd "W.uncap: with no arguments";
+    Guardian.unfold None |> ignore
+  | h::t ->
+    pd ("W.uncap: with argument " ^ h);
     Guardian.unfold (Some (File.file_of_string h)) |> ignore;
   pd "W.uncap: finished initialization; going to listen";
-  listen () >>> fun _ -> ()
+  listen () >>> fun _ ->
+  ()
 
 (* To run with new file, use: *)
-let _ = uncap (Array.to_list Sys.argv)
+let _ = uncap (List.tl (Array.to_list Sys.argv))
 
 (* To run with command line arguments, use the following: *)
 (* uncap (Array.to_list Sys.argv);; *)

@@ -22,7 +22,7 @@ val pen_filter : State.t -> Instruction.t list -> Instruction.t list
 
 (* Same as pen, but uses the open State.t ref. *)
 val update_check : Instruction.t ->
-  [> `NothingOpened | `InvalidInstruction | `Success]
+  [> `NothingOpened | `Invalid | `Success]
 
 (* DISABLED FUNCTIONS
 
