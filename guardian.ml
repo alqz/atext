@@ -90,9 +90,12 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
     me := cid; opened := Some new_state;
     pd (State.string_of_t new_state);
     (* Starting the GUI *)
+    let my_cursor : Cursor.t = coerce (State.get_cursor new_state cid) in
+    let other_cursors : Cursor.t list = State.get_other_cursors new_state cid in
     let rows_as_strings : string list =
       List.map State.string_of_row (State.rows new_state) in
-    Gui.init rows_as_strings;
+    Gui.init [];
+    Gui.refreshscreen rows_as_strings other_cursors my_cursor;
     `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 
