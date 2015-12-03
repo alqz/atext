@@ -117,25 +117,34 @@ let scroll (y_new : int) (x_new : int) : unit =
     ()
   );
 
-  (* scroll right *)
-  let at_right = ((!x_prev - !hoffset) = x_max) in
+  (* new scroll right *)
+  while (x_new > (!hoffset + x_max)) do
+    hoffset := !hoffset + x_max + 1
+  done;
+  (* old scroll right *)
+  (* let at_right = ((!x_prev - !hoffset) = x_max) in
   let moved_right = (x_new > !x_prev) in
   (
   if (at_right && moved_right) then
     hoffset := !hoffset + x_max + 1
   else
     ()
-  );
+  ); *)
+
+  (* new scroll right *)
+  while (x_new < !hoffset) do
+    hoffset := !hoffset - x_max - 1
+  done
 
   (* scroll left *)
-  let at_left = ((!x_prev - !hoffset) = 0) in
+  (* let at_left = ((!x_prev - !hoffset) = 0) in
   let moved_left = (x_new < !x_prev) in
   (
   if (at_left && moved_left) then
     hoffset := !hoffset - x_max - 1
   else
     ()
-  )
+  ) *)
 
 (*
 Helper function to display one line.
