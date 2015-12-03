@@ -15,17 +15,14 @@ let win = initscr()
 let voffset = ref 0
 let hoffset = ref 0
 let std = Lazy.force (Reader.stdin)
-(* The window as 24 rows and 80 columns *)
-let y_max = 23
-let x_max = 79
+(* By default, the window as 24 rows and 80 columns *)
+let y_max = ref (fst (getmaxyx win) - 1)
+let x_max = ref (snd (getmaxyx win) - 1)
 let y_prev = ref 0
 let x_prev = ref 0
 let max_colors = 6
 
 let init (args : string list) : unit =
-  (* let _ = (keypad win true) in (); *)
-  (* let _ = (nodelay win true) in (); *)
-  (* let _ = noecho () in (); *)
   let _ = start_color () in ();
   let _ = init_pair 1 Color.black Color.red in ();
   let _ = init_pair 2 Color.black Color.yellow in ();
@@ -38,7 +35,7 @@ let init (args : string list) : unit =
 Helper function to determine whether a coord (relative) is on screen
 *)
 let visible (y : int) (x : int) : bool =
-  (0 <= y) && (y <= y_max) && (0 <= x) && (x <= x_max)
+  (0 <= y) && (y <= !y_max) && (0 <= x) && (x <= !x_max)
 
 let colorcount : int ref = ref 1
 (*
@@ -109,7 +106,7 @@ let scroll (y_new : int) (x_new : int) : unit =
   );
 
   (* scroll down *)
-  let at_bottom = ((!y_prev - !voffset) = y_max) in
+  let at_bottom = ((!y_prev - !voffset) = !y_max) in
   let moved_down = (y_new > !y_prev) in
   (
   if (at_bottom && moved_down) then
@@ -119,33 +116,14 @@ let scroll (y_new : int) (x_new : int) : unit =
   );
 
   (* new scroll right *)
-  while (x_new > (!hoffset + x_max - 1)) do
-    hoffset := !hoffset + x_max + 1
+  while (x_new > (!hoffset + !x_max - 1)) do
+    hoffset := !hoffset + !x_max + 1
   done;
-  (* old scroll right *)
-  (* let at_right = ((!x_prev - !hoffset) = x_max) in
-  let moved_right = (x_new > !x_prev) in
-  (
-  if (at_right && moved_right) then
-    hoffset := !hoffset + x_max + 1
-  else
-    ()
-  ); *)
 
   (* new scroll left *)
   while (x_new < !hoffset) do
-    hoffset := !hoffset - x_max - 1
+    hoffset := !hoffset - !x_max - 1
   done
-
-  (* scroll left *)
-  (* let at_left = ((!x_prev - !hoffset) = 0) in
-  let moved_left = (x_new < !x_prev) in
-  (
-  if (at_left && moved_left) then
-    hoffset := !hoffset - x_max - 1
-  else
-    ()
-  ) *)
 
 (*
 Helper function to display one line.
@@ -155,11 +133,11 @@ let displayline (line : string) : unit =
   let l = String.length line in
   if (l > !hoffset) then
   begin
-    if (l >= (!hoffset + 80)) then
+    if (l >= (!hoffset + !x_max + 1)) then
 
     begin
       (* The line has characters to the right of the current view *)
-      ignore(addstr (String.sub line (!hoffset) 80))
+      ignore(addstr (String.sub line (!hoffset) (!x_max + 1)))
     end
     else
     begin
@@ -192,7 +170,7 @@ let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
       | h::t -> lines := t
   done;
   (* display the 24 lines in view *)
-  for i = 1 to 24 do
+  for i = 1 to (!y_max+1) do
     match !lines with
     | [] -> () (* no more lines to display *)
     | h::t ->
@@ -260,10 +238,20 @@ let poll_keyboard () : input Deferred.t =
     | _ -> return Nothing in
   result
 
+let update_winsize () : unit =
+  y_max := fst (getmaxyx win) - 1;
+  x_max := snd (getmaxyx win) - 1
+
 let terminate () : unit =
   endwin()
 
 (* For testing only *)
+
+let init_old () : unit =
+  let _ = (keypad win true) in ();
+  let _ = (nodelay win true) in ();
+  let _ = noecho () in ()
+
 let pausescreen () : unit =
   let _ = nodelay win false in
   ignore (getch())

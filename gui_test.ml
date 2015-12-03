@@ -23,6 +23,7 @@ for i = 0 to no_of_lines do
   testcursors := (diagmovecursor c i)::!testcursors
 done;
 init [];
+init_old();
 let mycursor = Cursor.new_cursor() in
 refreshscreen !testlines [] mycursor;
 

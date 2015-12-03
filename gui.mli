@@ -25,9 +25,17 @@ val refreshscreen : string list -> Cursor.t list -> Cursor.t -> unit
 (* Non-blocking get the key typed by the user. *)
 val poll_keyboard : unit -> input Deferred.t
 
+(* Updates the screen size parameters used in Gui.
+Call refresh screen afterwards to see chanes on the screen *)
+val update_winsize: unit -> unit
+
+(* ends the Curses interface *)
 val terminate: unit -> unit
 
 (* functions below are for debugging *)
+
+(* initialization to support getch() for use in debugging *)
+val init_old : unit -> unit
 
 (* pause the screen after a call to refreshcreen to see the results *)
 val pausescreen : unit -> unit
