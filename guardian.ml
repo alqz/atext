@@ -96,7 +96,7 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
     let other_cursors : Cursor.t list = State.get_other_cursors new_state cid in
     let rows_as_strings : string list =
       List.map State.string_of_row (State.rows new_state) in
-    (* Gui.init []; *)
+    Gui.init [];
     Gui.refreshscreen rows_as_strings other_cursors my_cursor;
     `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken

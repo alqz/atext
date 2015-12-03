@@ -9,7 +9,9 @@ open Auxiliary
 exception FileFailedToOpen
 
 (* Unused for now. *)
-(* type mode = Offline | Host | Client | Inert *)
+type mode = Offline | Host | Client
+
+let is : mode option ref = ref (Some Offline)
 
 (* Interpret a raw user input. *)
 let interpret (gi : Gui.input) : Instruction.t option =
@@ -109,13 +111,15 @@ and stop_listen : unit -> unit Deferred.t = fun _ ->
 
 let uncap (arg_list : string list) : unit =
   pd "W.uncap: Start of program";
-  match arg_list with
-  | [] ->
-    pd "W.uncap: with no arguments";
-    Guardian.unfold None |> ignore
-  | h::t ->
-    pd ("W.uncap: with argument " ^ h);
-    Guardian.unfold (Some (File.file_of_string h)) |> ignore;
+  begin (* examine user input arguments *)
+    match arg_list with
+    | [] ->
+      pd "W.uncap: with no arguments";
+      Guardian.unfold None |> ignore
+    | h::t ->
+      pd ("W.uncap: with argument " ^ h);
+      Guardian.unfold (Some (File.file_of_string h)) |> ignore
+  end;
   pd "W.uncap: finished initialization; going to listen";
   listen () >>> fun _ ->
   ()
