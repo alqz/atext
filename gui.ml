@@ -155,27 +155,27 @@ let displayline (line : string) : unit =
   if (l > !hoffset) then
   begin
     if (l >= (!hoffset + 80)) then
-    (* The line has characters to the right of the current view *)
-    begin
-      (* print_endline "yup!"; *)
-      ignore(addstr (String.sub line (!hoffset) 80))
 
+    begin
+      (* The line has characters to the right of the current view *)
+      ignore(addstr (String.sub line (!hoffset) 80))
     end
     else
+    begin
       (* The line fits within the screen after hoffset *)
-      begin
       ignore(addstr (String.sub line !hoffset (l - !hoffset)));
       ignore(addstr "\n")
     end
   end
-  else (* the line entirely to the left of the current view *)
-      ignore(addstr "\n")
+  else
+    (* the line entirely to the left of the current view *)
+    ignore(addstr "\n")
 
   (* ignore (addstr (line ^ "\n")) *)
 
 (* 24 rows and 80 columns *)
 (* completely redraws the whole screen *)
-(* takes into consideration the vertical scrolling *)
+(* takes into consideration the vertical scrolling and horizontal scrolling *)
 let refreshscreen (alllines : string list) (othercursors : Cursor.t list)
                   (thiscursor : Cursor.t) : unit =
   let y_new, x_new = Cursor.y thiscursor, Cursor.x thiscursor in
