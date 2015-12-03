@@ -254,3 +254,7 @@ let setvoffset (i : int) : unit =
 (* For testing only *)
 let sethoffset (i : int) : unit =
   hoffset := i
+
+(* For testing only *)
+let setdelay () : unit =
+  ignore(nodelay win false)

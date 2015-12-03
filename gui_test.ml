@@ -25,8 +25,43 @@ done;
 init [];
 let mycursor = Cursor.new_cursor() in
 refreshscreen !testlines [] mycursor;
-pausescreen();
-for i=0 to (no_of_lines-23) do
+
+let rec test_loop (c : Cursor.t) : unit =
+  let (y : int),(x : int) = (Cursor.y c), (Cursor.x c) in
+  let ch = getch() in
+  if (ch = Key.down) then
+  begin
+    let (c' : Cursor.t) = Cursor.d c in
+    refreshscreen !testlines [] c';
+    test_loop c'
+  end
+  else if ((ch = Key.up) && (y > 0)) then
+  begin
+    let (c' : Cursor.t) = Cursor.u c in
+    refreshscreen !testlines [] c';
+    test_loop c'
+  end
+  else if (ch = Key.right) then
+  begin
+    let (c' : Cursor.t) = Cursor.r c in
+    refreshscreen !testlines [] c';
+    test_loop c'
+  end
+  else if ((ch = Key.left) && (x > 0)) then
+  begin
+    let (c' : Cursor.t) = Cursor.l c in
+    refreshscreen !testlines [] c';
+    test_loop c'
+  end
+  else
+    test_loop c
+
+in
+test_loop mycursor;
+
+
+
+(* for i=0 to (no_of_lines-23) do
   setvoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
@@ -48,7 +83,7 @@ for i=(no_of_lines-24) downto 0  do
   setvoffset i;
   refreshscreen !testlines !testcursors mycursor;
   pausescreen();
-done;
+done; *)
 
 (* sethoffset 80;
 refreshscreen !testlines !testcursors mycursor;

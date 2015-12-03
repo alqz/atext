@@ -37,3 +37,6 @@ val setvoffset : int -> unit
 
 (* adjust the hoffset (horizontal scrolling) *)
 val sethoffset : int -> unit
+
+(* switch to blocking getch mode *)
+val setdelay : unit -> unit
