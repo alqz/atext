@@ -148,7 +148,7 @@ let displayline (line : string) : unit =
     if (l > (!hoffset + 80)) then
     (* The line has characters to the right of the current view *)
     begin
-      print_endline "yup!";
+      (* print_endline "yup!"; *)
       ignore(addstr (String.sub line (!hoffset) 79))
 
     end
