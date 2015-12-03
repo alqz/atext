@@ -88,7 +88,12 @@ let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
     in let new_state : State.t = State.instantiate cid data file in
     pd "G.unfold: successfully initialized state to";
     me := cid; opened := Some new_state;
-    pd (State.string_of_t new_state); `Success
+    pd (State.string_of_t new_state);
+    (* Starting the GUI *)
+    let rows_as_strings : string list =
+      List.map State.string_of_row (State.rows new_state) in
+    Gui.init rows_as_strings;
+    `Success
   | Some _ -> pd "G.unfold: opened is taken"; `OpenedTaken
 
 (* Note that the cid in me is ignored. *)

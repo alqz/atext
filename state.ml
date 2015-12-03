@@ -333,9 +333,9 @@ let add (st : t) (cid : Cursor.id) (ch : char) : bool =
   pd "State.add: Starting add";
   let ci : int = Char.code ch in
   pd ("State.add: Using character index " ^ (string_of_int ci));
-  if ci = 8 || ci = 126 then add_backspace st cid else
+  if ci = 8 then add_backspace st cid else
   if ci = 10 then add_return st cid else
-  if ci = 127 then add_delete st cid else
+  if ci = 127 || ci = 126 then add_delete st cid else
   if ci >= 32 && ci <= 125 then
     begin
       pd "State.add: Adding standard character";

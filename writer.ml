@@ -88,7 +88,6 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
         fstop ();
         raise FileFailedToOpen
       | `Success -> pd "W.process_key: Successfully updated state";
-        (* fstop (); *)
         (* share it' *)
         ()
       | `Invalid ->

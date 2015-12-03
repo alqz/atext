@@ -22,7 +22,6 @@ val init : string list -> unit
  *)
 val refreshscreen : string list -> Cursor.t list -> Cursor.t -> unit
 
-
 (* Non-blocking get the key typed by the user. *)
 val poll_keyboard : unit -> input Deferred.t
 
