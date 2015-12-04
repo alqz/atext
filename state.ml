@@ -1,5 +1,5 @@
 (* state.ml
- * Updated 151129 by Albert Zhang
+ * Updated 151204 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
@@ -71,6 +71,59 @@ let decode (ciphertext : string) : t =
   let c, _ = between_matching y '[' ']' in
   ignore (a, b, c);
   failwith "Unimplemented"
+
+exception JsonCorrupted of string
+
+let encode (st : t) : Yojson.Basic.json =
+  let open Yojson.Basic in
+  `Assoc [
+    ("cursors",
+      `List (
+        List.map (fun c ->
+          let id, x, y = Cursor.id c, Cursor.x c, Cursor.y c in
+          `Assoc [
+            ("id", `String (Cursor.string_of_id id));
+            ("x", `Int x);
+            ("y", `Int y)
+          ]
+        ) st.cursors
+      )
+    );
+    ("text",
+      `List (
+        List.map (fun s -> `String s) st.text
+      )
+    );
+    ("origin",
+      `String (File.string_of_file st.origin)
+    )
+  ]
+
+let decode_cursor (j : Yojson.Basic.json) : Cursor.t =
+  let open Yojson.Basic in
+  match j with
+  | `Assoc [("id", `String id);
+            ("x", `Int x);
+            ("y", `Int y)] ->
+    Cursor.instantiate (Cursor.id_of_string id) x y
+  | _ -> raise (JsonCorrupted "Cursors failed!")
+
+let decode (j : Yojson.Basic.json) : t =
+  let open Yojson.Basic in
+  match j with
+  | `Assoc [("cursors", `List cs);
+            ("text", `List ss);
+            ("origin", `String o)] -> {
+      cursors =
+        List.map decode_cursor cs;
+      text = List.map (fun s ->
+          match s with
+          | `String s' -> s'
+          | _ -> raise (JsonCorrupted "Text strings failed!")
+        ) ss;
+      origin = File.file_of_string o
+    }
+  | _ -> raise (JsonCorrupted "Structure is not correct!")
 
 (* CURSOR GETTERS AND SETTERS *)
 

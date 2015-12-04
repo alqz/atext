@@ -1,2 +1,2 @@
-compile.opam_packages=curses, async, str
+compile.opam_packages=curses, async, str, yojson
 compile.thread=true

@@ -63,4 +63,5 @@ val instantiate : Cursor.id -> string list -> File.name -> t
 val string_of_t : t -> string
 val string_of_text : t -> string
 val string_of_cursors : t -> string
-(* val decode : string -> t *)
+val encode : t -> Yojson.Basic.json
+val decode : Yojson.Basic.json -> t
