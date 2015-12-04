@@ -20,10 +20,12 @@ let string_of_cursors (st : t) : string =
 
 let string_of_text (st : t) : string =
   List.fold_left (fun acc s ->
-    acc ^ s ^ "[return]\n"
+    acc ^ s ^ "\n"
   ) "" st.text
 
 (* TO STRING FUNCTION FOR DEBUG AND TRANSMIT *)
+
+(* For debug. *)
 let string_of_t (st : t) : string =
   let cs : string = string_of_cursors st in
   let ss : string = string_of_text st in
@@ -31,6 +33,44 @@ let string_of_t (st : t) : string =
   "[State object with cursors [" ^ cs ^
   "] and text [\n" ^ ss ^
   "] and file name [" ^ fs ^ "]]"
+
+let between_matching (cl : char list) (p : char) (q : char)
+  : char list * char list =
+  let rec _between_matching cl p q (level : int)
+    (acc : char list) (out : char list)
+    : char list * char list =
+    match cl with
+    | [] -> acc, out
+    | h :: t ->
+      if h = q then begin
+        if level < 0 then _between_matching t p q 0 acc (h :: out) else
+        _between_matching t p q (level + 1) (h :: acc) out
+      end else if h = q then begin
+        if level < 0 then _between_matching t p q (-1) acc (h :: out) else
+        if level > 0 then _between_matching t p q (level - 1) (h :: acc) out else
+        acc, List.rev_append t out
+      end else
+      if level >= 0 then _between_matching t p q level (h :: acc) out else
+      _between_matching t p q level acc (h :: out)
+  in let acc, out = _between_matching cl p q (-1) [] [] in
+  List.rev_append acc [], List.rev_append acc []
+
+let explode (s : string) : char list =
+  let rec exp i l =
+    if i < 0 then l else exp (i - 1) (s.[i] :: l) in
+  exp (String.length s - 1) []
+
+let decode_cursors (cl : char list) : Cursor.t list =
+  failwith "Unimplemented"
+
+let decode (ciphertext : string) : t =
+  let cipherlist : char list = explode ciphertext in
+  let first, _ = between_matching cipherlist '[' ']' in
+  let a, x = between_matching first '[' ']' in
+  let b, y = between_matching x '[' ']' in
+  let c, _ = between_matching y '[' ']' in
+  ignore (a, b, c);
+  failwith "Unimplemented"
 
 (* CURSOR GETTERS AND SETTERS *)
 
