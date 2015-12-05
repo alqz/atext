@@ -28,6 +28,9 @@ val init_server : int -> int -> int Deferred.t
  * returns 0 if success, 1 otherwise
  *)
 val init_client : string -> int -> int Deferred.t
+(* CONSIDER : change to
+ * val init_client : string -> int -> (int * Yojson.Basic.json) Deferred.t
+ *)
 
 (**
  * Gets determined with incoming instructions when they arrive. New
@@ -41,4 +44,10 @@ val occumulated_instruction : unit -> Instruction.t Deferred.t
  * If client then send to the host
  *)
 val send : Instruction.t -> int
+(* CONSIDER: change to
+ * val send : Yojson.Basic.json -> int
+ *)
 
+(* CONSIDER: add
+ * val send_state : Yojson.Basic.json -> int
+ *)
