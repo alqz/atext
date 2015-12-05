@@ -44,18 +44,8 @@ let share (it : Instruction.t) : unit =
 
 let rec listen : unit -> unit Deferred.t = fun _ ->
   pd "W.listen: starting to listen";
-  (* Poll keyboard *)
-  let key_input_d : Gui.input Deferred.t =
-    Gui.poll_keyboard () in
-  (* Understand keyboard *)
-  let _ : unit Deferred.t =
-    key_input_d >>= process_key_input in
-  (* Poll server *)
-  let ext_input_d : Instruction.t Deferred.t =
-    Server.occumulated_instruction () in
-  (* Try processing it and ignore results *)
-  let _ : unit Deferred.t =
-    ext_input_d >>= process_ext_input in
+  ignore (listen_key ());
+  ignore (listen_ext ());
   return ()
 
 and listen_key : unit -> unit Deferred.t = fun _ ->
