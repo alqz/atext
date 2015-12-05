@@ -27,10 +27,7 @@ val init_server : int -> int -> int Deferred.t
  * Arg2: destination port number (the port the host uses)
  * returns 0 if success, 1 otherwise
  *)
-val init_client : string -> int -> int Deferred.t
-(* CONSIDER : change to
- * val init_client : string -> int -> (int * Yojson.Basic.json) Deferred.t
- *)
+val init_client : string -> int -> State.t Deferred.t
 
 (**
  * Gets determined with incoming instructions when they arrive. New
@@ -43,11 +40,4 @@ val occumulated_instruction : unit -> Instruction.t Deferred.t
  * If host then sends to all visitors server is currently connected to
  * If client then send to the host
  *)
-val send : Instruction.t -> int
-(* CONSIDER: change to
- * val send : Yojson.Basic.json -> int
- *)
-
-(* CONSIDER: add
- * val send_state : Yojson.Basic.json -> int
- *)
+val send : Yojson.Basic.json -> int

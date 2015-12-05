@@ -20,87 +20,34 @@ let pending = AQueue.create()
 let destinations = ref []
 
 let line_of_instruction instruction =
-  let open Instruction in
-  let str_id = Cursor.string_of_id instruction.cursor in
-  str_id ^ " -> " ^ File.string_of_file instruction.file ^ ": " ^
-  begin match instruction.op with
-  | Add c -> "add " ^ (Char.escaped c)
-  | Move dir -> "move " ^
-    begin match dir with
-    | Up -> "up"
-    | Down -> "down"
-    | Left -> "left"
-    | Right -> "right" end
-  | New -> "new"
-  | Leave -> "leave" end ^ "\n"
+  Yojson.Basic.to_string (Instruction.encode instruction)
 
 let instruction_of_line line =
-  let open Instruction in
-  let info_list = Str.split (Str.regexp " -> ") line in
-  match info_list with
-  | [id; content] ->
-      let id_str = Cursor.id_of_string id in
-      begin match Str.split (Str.regexp ": ") content with
-      | [f; cmd] ->
-          let file_slot = File.file_of_string f in
-          begin match Str.split (Str.regexp " ") cmd with
-          | ["add"; c] when String.length c = 1 -> {
-                op = Add (String.get c 0);
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["move"; "up"] -> {
-                op = Move Up;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["move"; "down"] -> {
-                op = Move Down;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["move"; "left"] -> {
-                op = Move Left;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["move"; "right"] -> {
-                op = Move Right;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["new"] -> {
-                op = New;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | ["leave"] -> {
-                op = Leave;
-                cursor = id_str;
-                file = file_slot;
-              }
-          | _ -> failwith "badly formatted instruction" end
-      | _ -> failwith "badly formatted instruction" end
-  | _ -> failwith "badly formatted instruction"
+  Instruction.decode (Yojson.Basic.from_string line)
 
-let send instruction =
+let string_of_json js = js |> Yojson.Basic.to_string |> Yojson.Basic.compact
+
+let extract err = function
+| `Eof -> failwith err
+| `Ok str -> str
+
+let send json =
   match !status with
   | Empty -> failwith "server/client not intialized"
   | Waiting_server -> failwith "server is not ready yet"
   | Waiting_client -> failwith "client is not ready yet"
   | _ ->
       let send (_, w) =
-        let line = line_of_instruction instruction in
+        let line = string_of_json json in
         Async.Std.Writer.write_line w line in
       List.iter send (!destinations);
       0
 
 let rec client_loop addr reader =
-  Reader.read_line reader >>= function
-  | `Eof -> failwith "connection with host has ended"
-  | `Ok str ->
-      AQueue.push pending (instruction_of_line str);
-      client_loop addr reader
+  Reader.read_line reader >>= fun line ->
+  let str = extract "connection with host has ended" line in
+  AQueue.push pending (instruction_of_line str);
+  client_loop addr reader
 
 let init_client addr port_num =
   if !status <> Empty then failwith "tried to init server/client twice" else
@@ -108,21 +55,41 @@ let init_client addr port_num =
   status := Waiting_client;
   connect(to_host_and_port addr port_num) >>= fun (socket, read, write) ->
   destinations := (addr, write) :: (!destinations);
+  Reader.read_line read >>= fun first ->
+  let str_state = extract "connection with host was not established" first in
+  let state = State.decode (Yojson.Basic.from_string str_state) in
   ignore (client_loop addr read);
   status := Client;
-  return 0
+  return state
+
+let get_sender str_inst =
+  let open Instruction in
+  Cursor.string_of_id ((instruction_of_line str_inst).cursor)
 
 let rec server_loop addr reader =
+  let open Instruction in
   Reader.read_line reader >>= function
   | `Eof ->
       destinations := List.remove_assoc addr (!destinations);
-      ignore (failwith "need to send an exit instruction to everyone");
+      (* need to get file name to send Leave instruction *)
+      (* send (Instruction.encode {op = Leave; cursor = Cursor.id_of_string addr; }) *)
       return ()
   | `Ok str ->
       let instruction = instruction_of_line str in
       AQueue.push pending instruction;
-      ignore (send instruction);
-      server_loop addr reader
+      ignore (send (Instruction.encode instruction));
+      if instruction.op = New then
+        let new_name = get_sender str in
+        let new_matching = List.assoc addr (!destinations) in
+        let new_list =
+          (new_name, new_matching) :: List.remove_assoc addr (!destinations) in
+        destinations := new_list;
+        server_loop new_name reader
+      else if instruction.op = Leave then begin
+        destinations := List.remove_assoc addr (!destinations);
+        return ()
+      end else
+        server_loop addr reader
 
 let init_server port collab_num =
   if !status <> Empty then failwith "tried to init server/client twice" else
@@ -130,6 +97,9 @@ let init_server port collab_num =
   let handle_new_connection a r w =
     let addr = Socket.Address.Inet.to_string a in
     destinations := (addr, w) :: (!destinations);
+    (* need to have access to the current state in json form
+     *)
+    (* Async.Std.Writer.write_line w (State.encode ) *)
     server_loop addr r in
   let server =
     Async.Std.Tcp.Server.create
