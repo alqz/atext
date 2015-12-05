@@ -17,7 +17,7 @@ type path = string list
 exception FileNotFound of string
 
 let designated : path ref =
-  ref ["home"; "vagrant"; "Desktop"; "atext"; "test_edit_dir"]
+  ref ["myfiles"]
 
 let rec concat_path (p : path) : string =
   match p with
@@ -29,7 +29,7 @@ let concat_root_path (p : path) : string =
 
 let in_chn_of_name (n : name) : in_channel =
   pd "File.in_chn_of_name: Attempting to open an in channel";
-  let p : string = concat_root_path !designated in
+  let p : string = concat_path !designated in
   let full : string = match n.ext with
     | Some s -> p ^ n.n ^ "." ^ s
     | None -> p ^ n.n
@@ -37,7 +37,7 @@ let in_chn_of_name (n : name) : in_channel =
 
 let out_chn_of_name (n : name) : out_channel =
   pd "File.out_chn_of_name: Attempting to open an out channel";
-  let p : string = concat_root_path !designated in
+  let p : string = concat_path !designated in
   let full : string = match n.ext with
     | Some s -> p ^ n.n ^ "." ^ s
     | None -> p ^ n.n

@@ -26,9 +26,7 @@ val instantiate : id -> int -> int -> t
 
 (* Mainly for transmission purposes. *)
 val string_of_id : id -> string
-
 exception FaultyId of string
-
 val id_of_string : string -> id
 
 (* Move one unit in the directions. *)
@@ -47,3 +45,8 @@ val zero : t -> t
 val get_id : t -> id
 
 val string_of_t : t -> string
+
+(* For transmission and logging. *)
+exception JsonCorrupted of string
+val encode : t -> Yojson.Basic.json
+val decode : Yojson.Basic.json -> t

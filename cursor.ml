@@ -76,3 +76,22 @@ let get_id ((id, (_, _)) : t) : id = id
 
 let string_of_t ((id, (x, y)) : t) : string =
   (string_of_id id) ^ "-" ^ (string_of_int x) ^ "-" ^ (string_of_int y)
+
+exception JsonCorrupted of string
+
+let encode ((id, (x, y)) : t) : Yojson.Basic.json =
+  let open Yojson.Basic in
+  `Assoc [
+    ("id", `String (string_of_id id));
+    ("x", `Int x);
+    ("y", `Int y)
+  ]
+
+let decode (j : Yojson.Basic.json) : t =
+  let open Yojson.Basic in
+  match j with
+  | `Assoc [("id", `String id);
+            ("x", `Int x);
+            ("y", `Int y)] ->
+    instantiate (id_of_string id) x y
+  | _ -> raise (JsonCorrupted "Cursors failed!")

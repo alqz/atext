@@ -47,6 +47,27 @@ let coerce (ao : 'a option) : 'a =
   | Some a -> a
   | None -> failwith "Bad coercion!"
 
+let update_counter : int ref = ref 0
+let log_file : File.name =
+  let name = Cursor.string_of_id !me in
+  File.create (File.file_of_string ("exlog/log_" ^ name))
+let log_data : string list ref = ref []
+
+(* Writes in the log, using output_counter. *)
+let logger (st : State.t) (it : Instruction.t) (valid : bool) : unit =
+  let st_string : string =
+    st |> State.encode |> Yojson.Basic.pretty_to_string in
+  let it_string : string =
+    it |> Instruction.encode |> Yojson.Basic.pretty_to_string in
+  let entry_info : string =
+    "\n\nEntry " ^ (string_of_int !update_counter) ^ "\n" ^
+    (if valid then "State updated" else "State not updated") ^ "\n" in
+  let this_entry : string =
+    entry_info ^ it_string ^ st_string in
+  let new_log = this_entry :: !log_data in
+  log_data := new_log;
+  File.save_lines log_file new_log
+
 let output : unit -> [> `NothingOpened | `Success] = fun _ ->
   match !opened with
   | None -> `NothingOpened
@@ -65,11 +86,15 @@ let update_check (it : Instruction.t)
                 : [> `NothingOpened | `Invalid | `Success] =
   pd "G.update_check: Starting update of state";
   match !opened with
-  | Some st -> begin match pen_check st it with
-      | false -> `Invalid
-      | true -> output () |> ignore; (* should always `Success *)
-        `Success
-    end
+  | Some st ->
+    let updated : bool = pen_check st it in
+    update_counter := (!update_counter + 1);
+    (* Log it. For debugging. *)
+    if log then logger st it updated else ();
+    if updated then begin
+      output () |> ignore; (* should always `Success *)
+      `Success
+    end else `Invalid
   | None -> `NothingOpened
 
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)

@@ -34,6 +34,13 @@ let string_of_t (st : t) : string =
   "] and text [\n" ^ ss ^
   "] and file name [" ^ fs ^ "]]"
 
+(* These fairly useful string and char functions are no longer needed. *)
+(*
+(* If p is '(' and q is ')', then this returns the string
+ * between the first '(' and the matching ')'.
+ * Also returns the leftover string in the order.
+ * Essentially, extracts between matching parenthesis. If
+ * there is no ')' that matches, will extract from first '(' to end. *)
 let between_matching (cl : char list) (p : char) (q : char)
   : char list * char list =
   let rec _between_matching cl p q (level : int)
@@ -55,67 +62,41 @@ let between_matching (cl : char list) (p : char) (q : char)
   in let acc, out = _between_matching cl p q (-1) [] [] in
   List.rev_append acc [], List.rev_append acc []
 
+(* Courtesy of OCaml documentation. Splits a string into char list. *)
 let explode (s : string) : char list =
   let rec exp i l =
     if i < 0 then l else exp (i - 1) (s.[i] :: l) in
   exp (String.length s - 1) []
-
-let decode_cursors (cl : char list) : Cursor.t list =
-  failwith "Unimplemented"
-
-let decode (ciphertext : string) : t =
-  let cipherlist : char list = explode ciphertext in
-  let first, _ = between_matching cipherlist '[' ']' in
-  let a, x = between_matching first '[' ']' in
-  let b, y = between_matching x '[' ']' in
-  let c, _ = between_matching y '[' ']' in
-  ignore (a, b, c);
-  failwith "Unimplemented"
+*)
 
 exception JsonCorrupted of string
 
 let encode (st : t) : Yojson.Basic.json =
   let open Yojson.Basic in
   `Assoc [
-    ("cursors",
+    ("cs",
       `List (
-        List.map (fun c ->
-          let id, x, y = Cursor.id c, Cursor.x c, Cursor.y c in
-          `Assoc [
-            ("id", `String (Cursor.string_of_id id));
-            ("x", `Int x);
-            ("y", `Int y)
-          ]
-        ) st.cursors
+        List.map Cursor.encode st.cursors
       )
     );
-    ("text",
+    ("t",
       `List (
         List.map (fun s -> `String s) st.text
       )
     );
-    ("origin",
+    ("o",
       `String (File.string_of_file st.origin)
     )
   ]
 
-let decode_cursor (j : Yojson.Basic.json) : Cursor.t =
-  let open Yojson.Basic in
-  match j with
-  | `Assoc [("id", `String id);
-            ("x", `Int x);
-            ("y", `Int y)] ->
-    Cursor.instantiate (Cursor.id_of_string id) x y
-  | _ -> raise (JsonCorrupted "Cursors failed!")
-
 let decode (j : Yojson.Basic.json) : t =
   let open Yojson.Basic in
   match j with
-  | `Assoc [("cursors", `List cs);
-            ("text", `List ss);
-            ("origin", `String o)] -> {
+  | `Assoc [("cs", `List cs);
+            ("t", `List ss);
+            ("o", `String o)] -> {
       cursors =
-        List.map decode_cursor cs;
+        List.map Cursor.decode cs;
       text = List.map (fun s ->
           match s with
           | `String s' -> s'

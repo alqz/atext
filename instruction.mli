@@ -17,3 +17,8 @@ type t = {
   cursor : Cursor.id;
   file   : File.name;
 }
+
+(* For transmission and logging. *)
+exception JsonCorrupted of string
+val encode : t -> Yojson.Basic.json
+val decode : Yojson.Basic.json -> t

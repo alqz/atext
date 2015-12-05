@@ -1,5 +1,5 @@
 (* state.mli
- * Updated 151109 by Albert Zhang
+ * Updated 151205 by Albert Zhang
  * For ATEXT text-editor project.
  *)
 
@@ -59,9 +59,12 @@ val down : t -> Cursor.id -> bool
 val blank : unit -> t
 val instantiate : Cursor.id -> string list -> File.name -> t
 
-(* For debug and for transmission. *)
+(* For debug. *)
 val string_of_t : t -> string
 val string_of_text : t -> string
 val string_of_cursors : t -> string
+
+(* For transmission and logging. *)
+exception JsonCorrupted of string
 val encode : t -> Yojson.Basic.json
 val decode : Yojson.Basic.json -> t
