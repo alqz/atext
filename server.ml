@@ -60,7 +60,7 @@ let init_client addr port_num =
   let state = State.decode (Yojson.Basic.from_string str_state) in
   ignore (client_loop addr read);
   status := Client;
-  return state
+  return (state, 0)
 
 let get_sender str_inst =
   let open Instruction in

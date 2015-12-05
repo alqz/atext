@@ -27,7 +27,7 @@ val init_server : int -> int -> int Deferred.t
  * Arg2: destination port number (the port the host uses)
  * returns 0 if success, 1 otherwise
  *)
-val init_client : string -> int -> State.t Deferred.t
+val init_client : string -> int -> (State.t * int) Deferred.t
 
 (**
  * Gets determined with incoming instructions when they arrive. New
