@@ -12,10 +12,14 @@
 val get_opened : unit -> State.t option
 val get_my_cursor_id : unit -> Cursor.id
 
-
 (* Sets the file as the currently open state.
  * Inits everything from scratch. *)
 val unfold : File.name option -> [> `OpenedTaken | `Success]
+
+(* Sets the input state as the currently open state. *)
+val unpackage : State.t -> [> `OpenedTaken | `Success]
+
+(* Closes opened. *)
 val close : unit -> [> `NothingOpened | `Success]
 
 (* Pen basically updates the state using the instruction.

@@ -9,9 +9,11 @@ open Auxiliary
 exception FileFailedToOpen
 
 (* Unused for now. *)
-type mode = Offline | Host | Client
+type mode = Offline | Host | Guest
 
-let is : mode option ref = ref (Some Offline)
+let is : mode ref = ref Offline
+
+(* HELPERS *)
 
 (* Interpret a raw user input. *)
 let interpret (gi : Gui.input) : Instruction.t option =
@@ -35,8 +37,10 @@ let interpret (gi : Gui.input) : Instruction.t option =
     Some {op = op'; cursor = me; file = fn}
   | None -> None
 
-let rec share (it : Instruction.t) : unit =
+let share (it : Instruction.t) : unit =
   ignore (Server.send it)
+
+(* THE MAIN LOOP *)
 
 let rec listen : unit -> unit Deferred.t = fun _ ->
   pd "W.listen: starting to listen";
@@ -106,9 +110,35 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
 and stop_listen : unit -> unit Deferred.t = fun _ ->
   (* Clear the GUI *)
   Gui.terminate ();
+  (* What to do depending on whether online or offline. *)
+  begin match !is with
+  | Offline -> ()
+  | Guest ->
+    let open Instruction in
+    let leave_it : Instruction.t = {
+        op = Leave;
+        cursor = Guardian.get_my_cursor_id ();
+        file = State.get_name (match Guardian.get_opened () with
+          | Some st -> st
+          | None -> raise FileFailedToOpen)
+      } in
+    share leave_it
+  | Host ->
+    let open Instruction in
+    let leave_it : Instruction.t = {
+        op = Leave;
+        cursor = Guardian.get_my_cursor_id ();
+        file = State.get_name (match Guardian.get_opened () with
+          | Some st -> st
+          | None -> raise FileFailedToOpen)
+      } in
+    share leave_it
+  end;
   Guardian.close () |> ignore;
   print_endline "Exiting from program...";
   Pervasives.exit 0
+
+(* THE INIT FUNCTION *)
 
 let uncap (arg_list : string list) : unit =
   pd "W.uncap: Start of program";
@@ -118,24 +148,25 @@ let uncap (arg_list : string list) : unit =
   begin (* examine user input arguments *)
     match arg_list with
 
-    | [] ->
+    | [] -> is := Offline;
       print_endline "Initializing new file in offline mode...";
 
       after start_delay >>= fun _ ->
-      return (Guardian.unfold None |> ignore)
+      Guardian.unfold None |> ignore;
+      return ()
 
-    | filename :: [] ->
+    | filename :: [] -> is := Offline;
       print_endline (
         "Initializing in offline mode using file " ^
         filename ^ "...");
 
       after start_delay >>= fun _ ->
-      return (
-        Guardian.unfold (
-          Some (File.file_of_string filename)
-        ) |> ignore)
+      Guardian.unfold (
+        Some (File.file_of_string filename)
+      ) |> ignore;
+      return ()
 
-    | "host" :: port :: filename :: [] ->
+    | "host" :: port :: filename :: [] -> is := Host;
       print_endline (
         "Initializing in host mode using file " ^ filename ^
         " at port " ^ port ^ "...");
@@ -148,10 +179,10 @@ let uncap (arg_list : string list) : unit =
         print_endline (
           "Host server successfully started at port " ^ port ^ "...");
         after start_delay >>= fun _ ->
-        return (
-          Guardian.unfold (
-            Some (File.file_of_string filename)
-          ) |> ignore)
+        Guardian.unfold (
+          Some (File.file_of_string filename)
+        ) |> ignore;
+        return ()
       end else (* failed to start server *)
       let _ = List.map print_endline [
         "Host server could not be started.";
@@ -160,19 +191,29 @@ let uncap (arg_list : string list) : unit =
       after start_delay >>= fun _ ->
         Pervasives.exit 0
 
-    | "guest" :: address :: port :: [] ->
+    | "guest" :: address :: port :: [] -> is := Guest;
       print_endline (
         "Initializing in guest mode using address " ^ address ^
         " at port " ^ port ^ "...");
       let port' : int = int_of_string port in
-      let server_result : int Deferred.t =
+      let server_result : (State.t * int) Deferred.t =
         Server.init_client address port' in
-      server_result >>= fun i ->
+      server_result >>= fun (st, i) ->
       if i = 0 (* success *) then begin
         print_endline (
           "Guest connection successfully made...");
         after start_delay >>= fun _ ->
-        return (Guardian.unfold None |> ignore) (* Need to receive state! *)
+        (* unpackage incoming state *)
+        Guardian.unpackage st |> ignore;
+        (* send out my cursor *)
+        let open Instruction in
+        let add_it : Instruction.t = {
+            op = New;
+            cursor = Guardian.get_my_cursor_id ();
+            file = State.get_name st
+          } in
+        share add_it;
+        return ()
       end else (* failed to start server *)
       let _ = List.map print_endline [
         "Guest connection could not be made.";
@@ -198,6 +239,8 @@ let uncap (arg_list : string list) : unit =
     let _ = listen () in
     ()
   end
+
+(* BEGIN EXECUTION *)
 
 (* To run with new file, use: *)
 let _ = uncap (List.tl (Array.to_list Sys.argv))

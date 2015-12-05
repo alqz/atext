@@ -103,6 +103,20 @@ let update_check (it : Instruction.t)
     end else `Invalid
   | None -> `NothingOpened
 
+let unpackage (st : State.t) : [> `OpenedTaken | `Success] =
+  pd "G.unpackage";
+  match !opened with
+  | None -> pd "G.unpackage: Currently nothing opened";
+    (* Generate our new cursor ID *)
+    let cid : Cursor.id = Cursor.gen_id () in
+    me := cid; opened := Some st;
+    pd (State.string_of_t st);
+    (* Starting the GUI *)
+    Gui.init [];
+    output () |> ignore; (* should always `Success *)
+    `Success
+  | Some _ -> pd "G.unpackage: opened is taken"; `OpenedTaken
+
 (* Opens from file name. Inits a new cursor. Basically, inits everything. *)
 let unfold (fn : File.name option) : [> `OpenedTaken | `Success] =
   pd "G.unfold: Unfolding from Some file or from None";
