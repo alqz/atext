@@ -7,4 +7,7 @@
 
 val uncap : string list -> unit
 
+(* Exits cleanly. *)
+val stop_listen : unit -> unit Async.Std.Deferred.t
+
 exception FileFailedToOpen
