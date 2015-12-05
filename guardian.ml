@@ -77,7 +77,7 @@ let logger (st : State.t) (it : Instruction.t) (valid : bool) : unit =
 let output : unit -> [> `NothingOpened | `Success] = fun _ ->
   match !opened with
   | None -> `NothingOpened
-  | Some st -> pd "G.output: Change opened state";
+  | Some st -> pd "G.output: Found open state";
     let my_cursor : Cursor.t = coerce (State.get_cursor st !me) in
     let other_cursors : Cursor.t list = State.get_other_cursors st !me in
     let rows_as_strings : string list =
@@ -89,7 +89,7 @@ let output : unit -> [> `NothingOpened | `Success] = fun _ ->
     `Success
 
 let update_check (it : Instruction.t)
-                : [> `NothingOpened | `Invalid | `Success] =
+                 : [> `NothingOpened | `Invalid | `Success] =
   pd "G.update_check: Starting update of state";
   match !opened with
   | Some st ->
@@ -109,7 +109,7 @@ let unpackage (st : State.t) : [> `OpenedTaken | `Success] =
   | None -> pd "G.unpackage: Currently nothing opened";
     (* Generate our new cursor ID *)
     let cid : Cursor.id = Cursor.gen_id () in
-    me := cid; opened := Some st;
+    me := cid; opened := Some (State.add_cursor st cid |> ignore; st);
     pd (State.string_of_t st);
     (* Starting the GUI *)
     Gui.init [];

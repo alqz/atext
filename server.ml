@@ -31,6 +31,8 @@ let extract err = function
 | `Eof -> failwith err
 | `Ok str -> str
 
+let once = ref true
+
 let send inst =
   match !status with
   | Empty -> failwith "server/client not intialized"
@@ -41,6 +43,22 @@ let send inst =
         let line = line_of_instruction inst in
         Async.Std.Writer.write_line w line in
       List.iter send (!destinations);
+      (* (if !once then once := false else Pervasives.exit 0); *)
+      0
+
+let send_to_all_but name inst =
+  match !status with
+  | Empty -> failwith "server/client not intialized"
+  | Waiting_server -> failwith "server is not ready yet"
+  | Waiting_client -> failwith "client is not ready yet"
+  | _ ->
+      let send (_, w) =
+        let line = line_of_instruction inst in
+        Async.Std.Writer.write_line w line in
+      begin try List.iter send (List.remove_assoc name !destinations) with
+      | Not_found -> failwith "send_to_all_but did not find the name given"
+      | _ -> failwith "an unknown error occured in send_to_all_but" end;
+      (* (if !once then once := false else Pervasives.exit 0); *)
       0
 
 let rec client_loop addr reader =
@@ -66,6 +84,7 @@ let get_sender str_inst =
   let open Instruction in
   Cursor.string_of_id ((instruction_of_line str_inst).cursor)
 
+
 let rec server_loop addr reader =
   let open Instruction in
   Reader.read_line reader >>= function
@@ -81,24 +100,26 @@ let rec server_loop addr reader =
         cursor = Cursor.id_of_string addr;
         file = State.get_name current_state;
       } in
+      AQueue.push pending leave_inst;
       ignore (send leave_inst);
       return ()
   | `Ok str ->
       let instruction = instruction_of_line str in
       AQueue.push pending instruction;
-      ignore (send instruction);
-      if instruction.op = New then
-        let new_name = get_sender str in
-        let new_matching = List.assoc addr (!destinations) in
-        let new_list =
-          (new_name, new_matching) :: List.remove_assoc addr (!destinations) in
-        destinations := new_list;
-        server_loop new_name reader
-      else if instruction.op = Leave then begin
-        destinations := List.remove_assoc addr (!destinations);
-        return ()
-      end else
-        server_loop addr reader
+      ignore (send_to_all_but addr instruction);
+      let open Instruction in
+      match instruction.op with
+      | New ->
+          let new_name = get_sender str in
+          let new_matching = List.assoc addr (!destinations) in
+          let new_list =
+            (new_name, new_matching) :: List.remove_assoc addr (!destinations) in
+          destinations := new_list;
+          server_loop new_name reader
+      | Leave ->
+          destinations := List.remove_assoc addr (!destinations);
+          return ()
+      | _ -> server_loop addr reader
 
 let init_server port collab_num =
   if !status <> Empty then failwith "tried to init server/client twice" else

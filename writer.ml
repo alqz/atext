@@ -84,7 +84,7 @@ and process_key_input (ki : Gui.input) : unit Deferred.t =
         fstop ();
         raise FileFailedToOpen
       | `Success -> pd "W.process_key: Successfully updated state";
-        (* share it' *)
+        share it';
         ()
       | `Invalid ->
         pd "W.process_key: Either file name mismatch or invalid ins";
@@ -101,32 +101,25 @@ and stop_listen : unit -> unit Deferred.t = fun _ ->
   (* Clear the GUI *)
   Gui.terminate ();
   (* What to do depending on whether online or offline. *)
+  let open Instruction in
+  let leave_it : Instruction.t = {
+      op = Leave;
+      cursor = Guardian.get_my_cursor_id ();
+      file = State.get_name (match Guardian.get_opened () with
+        | Some st -> st
+        | None -> raise FileFailedToOpen)
+    } in
   begin match !is with
   | Offline -> ()
   | Guest ->
-    let open Instruction in
-    let leave_it : Instruction.t = {
-        op = Leave;
-        cursor = Guardian.get_my_cursor_id ();
-        file = State.get_name (match Guardian.get_opened () with
-          | Some st -> st
-          | None -> raise FileFailedToOpen)
-      } in
     share leave_it
   | Host ->
-    let open Instruction in
-    let leave_it : Instruction.t = {
-        op = Leave;
-        cursor = Guardian.get_my_cursor_id ();
-        file = State.get_name (match Guardian.get_opened () with
-          | Some st -> st
-          | None -> raise FileFailedToOpen)
-      } in
     share leave_it
   end;
   Guardian.close () |> ignore;
   print_endline "Exiting from program...";
-  Pervasives.exit 0
+  after (Core.Std.sec 0.05) >>= fun _ ->
+  return (ignore (Pervasives.exit 0))
 
 (* THE INIT FUNCTION *)
 
@@ -218,7 +211,7 @@ let uncap (arg_list : string list) : unit =
           "Use one of the following:";
           "  cs3110 run writer -- [filename]";
           "  cs3110 run writer -- host [port] [filename]";
-          "  cs3110 run writer -- guest [ip or dns address]";
+          "  cs3110 run writer -- guest [ip or dns address] [port]";
           "Exiting..."
         ] in
       after start_delay >>= fun _ ->
