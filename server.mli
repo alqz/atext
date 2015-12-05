@@ -40,4 +40,4 @@ val occumulated_instruction : unit -> Instruction.t Deferred.t
  * If host then sends to all visitors server is currently connected to
  * If client then send to the host
  *)
-val send : Yojson.Basic.json -> int
+val send : Instruction.t -> int

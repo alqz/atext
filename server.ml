@@ -31,14 +31,14 @@ let extract err = function
 | `Eof -> failwith err
 | `Ok str -> str
 
-let send json =
+let send inst =
   match !status with
   | Empty -> failwith "server/client not intialized"
   | Waiting_server -> failwith "server is not ready yet"
   | Waiting_client -> failwith "client is not ready yet"
   | _ ->
       let send (_, w) =
-        let line = string_of_json json in
+        let line = line_of_instruction inst in
         Async.Std.Writer.write_line w line in
       List.iter send (!destinations);
       0
@@ -77,7 +77,7 @@ let rec server_loop addr reader =
   | `Ok str ->
       let instruction = instruction_of_line str in
       AQueue.push pending instruction;
-      ignore (send (Instruction.encode instruction));
+      ignore (send instruction);
       if instruction.op = New then
         let new_name = get_sender str in
         let new_matching = List.assoc addr (!destinations) in
