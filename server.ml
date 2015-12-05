@@ -72,7 +72,16 @@ let rec server_loop addr reader =
   | `Eof ->
       destinations := List.remove_assoc addr (!destinations);
       (* need to get file name to send Leave instruction *)
-      (* send (Instruction.encode {op = Leave; cursor = Cursor.id_of_string addr; }) *)
+      let current_state =
+        match Guardian.get_opened () with
+          | Some st -> st
+          | None -> failwith "could not get file" in
+      let leave_inst = {
+        op = Leave;
+        cursor = Cursor.id_of_string addr;
+        file = State.get_name current_state;
+      } in
+      ignore (send leave_inst);
       return ()
   | `Ok str ->
       let instruction = instruction_of_line str in
@@ -97,9 +106,10 @@ let init_server port collab_num =
   let handle_new_connection a r w =
     let addr = Socket.Address.Inet.to_string a in
     destinations := (addr, w) :: (!destinations);
-    (* need to have access to the current state in json form
-     *)
-    (* Async.Std.Writer.write_line w (State.encode ) *)
+    let st_json : Yojson.Basic.json = match Guardian.get_opened () with
+      | None -> failwith "could not get file"
+      | Some st -> st |> State.encode in
+    Async.Std.Writer.write_line w (string_of_json st_json);
     server_loop addr r in
   let server =
     Async.Std.Tcp.Server.create
