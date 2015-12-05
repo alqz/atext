@@ -16,10 +16,10 @@ let is : mode option ref = ref (Some Offline)
 (* Interpret a raw user input. *)
 let interpret (gi : Gui.input) : Instruction.t option =
   let open Gui in let open Instruction in
-  let fn = match !Guardian.opened with
+  let fn = match Guardian.get_opened () with
     | None -> raise FileFailedToOpen
     | Some st -> State.get_name st in
-  let me = !Guardian.me in
+  let me = Guardian.get_my_cursor_id () in
   let op : Instruction.operation option = match gi with
     | Leave -> Some Leave
     | Up -> Some (Move Up) | Down -> Some (Move Down)

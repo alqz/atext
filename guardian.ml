@@ -12,6 +12,12 @@ let me : Cursor.id ref =
 let opened : State.t option ref =
   ref None
 
+let get_opened : unit -> State.t option = fun _ ->
+  !opened
+
+let get_my_cursor_id : unit -> Cursor.id = fun _ ->
+  !me
+
 let pen_check (st : State.t) (it : Instruction.t) : bool =
   pd "G.pen_check: Penning on a state";
   let open Instruction in

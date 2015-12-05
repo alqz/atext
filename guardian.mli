@@ -7,8 +7,11 @@
  * Also keeps track of the open state, and processes instructions. *)
 
 (* Currently opened state and id of my cursor. *)
-val opened : State.t option ref
-val me : Cursor.id ref
+(* val opened : State.t option ref *)
+(* val me : Cursor.id ref *)
+val get_opened : unit -> State.t option
+val get_my_cursor_id : unit -> Cursor.id
+
 
 (* Sets the file as the currently open state.
  * Inits everything from scratch. *)
