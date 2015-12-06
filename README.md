@@ -1,5 +1,9 @@
 # ATExt
 
+1. Overview
+2. Usage
+3. Acknowledgements
+
 ## 1. Overview
 
 Synchronized text-editor project by ATE.
