@@ -27,8 +27,15 @@ let instruction_of_line line =
 
 let string_of_json js = js |> Yojson.Basic.to_string |> Yojson.Basic.compact
 
+let exit_cleanly () =
+  Gui.terminate();
+  ignore (Pervasives.exit 0)
+
 let extract err = function
-| `Eof -> failwith err
+| `Eof ->
+    print_endline err;
+    exit_cleanly ();
+    ""
 | `Ok str -> str
 
 let once = ref true
