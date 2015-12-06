@@ -4,7 +4,7 @@
 
 Synchronized text-editor project by ATE.
 
-Ultra lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
+Lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
 
 
 ### About the Developer
