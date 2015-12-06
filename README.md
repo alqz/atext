@@ -1,9 +1,9 @@
 # ATExt
 
 Table of contents:
-1. Overview
-2. Usage
-3. Acknowledgements
+ 1. Overview
+ 2. Usage
+ 3. Acknowledgements
 
 ## 1. Overview
 
