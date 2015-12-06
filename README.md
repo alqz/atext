@@ -9,7 +9,7 @@ Lightweight program to do Google Docs-like synchronized file editing with your c
 
 ### About the Developer
 
-Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed for Cornell University CS 3110 final project.
+Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed as final project for CS 3110: Functional Programming and Data Structures at Cornell University.
 
 ### Features
 
