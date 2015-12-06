@@ -1,5 +1,6 @@
 # ATExt
 
+Table of contents:
 1. Overview
 2. Usage
 3. Acknowledgements
@@ -16,11 +17,9 @@ Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, 
 
 ### 1.2. Features
 
-Basic file editing, creating, saving. Inserting, moving, deleting, returning.
-
-GUI with colored cursors, scrolling.
-
-Multiple simultaneous collaborators. Changes appear in real time on all collaborators' screens.
+- Basic file editing, creating, saving. Inserting, moving, deleting, returning.
+- GUI with colored cursors, scrolling.
+- Multiple simultaneous collaborators. Changes appear in real time on all collaborators' screens.
 
 ## 2. Usage
 
