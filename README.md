@@ -1,10 +1,23 @@
 # atext
+
 For synchronized text-editor project by ATE.
 
-## About the Developer
+### About the Developer
+
 Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed for Cornell University CS 3110 final project.
 
-## Usage
+### Overview
+
+Ultra lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
+
+## Features
+
+Basic file editing, creating, saving. No undo, select, copy, paste.
+Saving, scrolling GUI with colored cursors.
+Changes appear in real time on all collaborators' screens.
+
+### Usage
+
 Need to install OCaml Curses first.
 ```
 opam install curses
@@ -19,7 +32,6 @@ Then compile using:
 ```
 cs3110 compile writer.ml
 ```
-
 To run, use one of the following:
 ```
 cs3110 run writer.ml -- [filename]
