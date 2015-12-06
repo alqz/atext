@@ -15,6 +15,10 @@ let is : mode ref = ref Offline
 
 (* HELPERS *)
 
+let clean_exit : unit -> unit = fun _ ->
+  Gui.terminate ();
+  Pervasives.exit 0
+
 (* Interpret a raw user input. *)
 let interpret (gi : Gui.input) : Instruction.t option =
   let open Gui in let open Instruction in
@@ -101,8 +105,6 @@ and process_ext_input (it : Instruction.t) : unit Deferred.t =
   listen_ext ()
 
 and stop_listen : unit -> unit Deferred.t = fun _ ->
-  (* Clear the GUI *)
-  Gui.terminate ();
   (* What to do depending on whether online or offline. *)
   let open Instruction in
   let leave_it : Instruction.t = {
@@ -116,7 +118,7 @@ and stop_listen : unit -> unit Deferred.t = fun _ ->
   Guardian.close () |> ignore;
   print_endline "Exiting from program...";
   after (Core.Std.sec 0.05) >>= fun _ ->
-  return (ignore (Pervasives.exit 0))
+  return (clean_exit ())
 
 (* THE INIT FUNCTION *)
 
@@ -169,7 +171,7 @@ let uncap (arg_list : string list) : unit =
         "Please check your port number. Choose a number greater than 6000.";
         "Exiting..."] in
       after start_delay >>= fun _ ->
-        Pervasives.exit 0
+      return (clean_exit ())
 
     | "guest" :: address :: port :: [] -> is := Guest;
       print_endline (
@@ -200,7 +202,7 @@ let uncap (arg_list : string list) : unit =
         "Please check your address and port numbers.";
         "Exiting..."] in
       after start_delay >>= fun _ ->
-        Pervasives.exit 0
+      return (clean_exit ())
 
     | _ ->
       let _ = List.map print_endline [
@@ -212,7 +214,7 @@ let uncap (arg_list : string list) : unit =
           "Exiting..."
         ] in
       after start_delay >>= fun _ ->
-        Pervasives.exit 0 (* not debug! *)
+      return (clean_exit ())
 
   end >>> begin fun _ ->
     pd "W.uncap: finished initialization; going to listen";
