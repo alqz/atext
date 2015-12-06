@@ -28,7 +28,11 @@ let instruction_of_line line =
 let string_of_json js = js |> Yojson.Basic.to_string |> Yojson.Basic.compact
 
 let extract err = function
-| `Eof -> failwith err
+| `Eof ->
+    print_endline err;
+    ignore (Unix.system ("stty sane"));
+    ignore (Pervasives.exit 0);
+    ""
 | `Ok str -> str
 
 let once = ref true
