@@ -38,7 +38,10 @@ let interpret (gi : Gui.input) : Instruction.t option =
   | None -> None
 
 let share (it : Instruction.t) : unit =
-  ignore (Server.send it)
+  match !is with
+  | Offline -> ()
+  | Host -> ignore (Server.send it)
+  | Guest -> ignore (Server.send it)
 
 (* THE MAIN LOOP *)
 
@@ -109,24 +112,11 @@ and stop_listen : unit -> unit Deferred.t = fun _ ->
         | Some st -> st
         | None -> raise FileFailedToOpen)
     } in
-  begin match !is with
-  | Offline -> ()
-  | Guest ->
-    share leave_it
-  | Host ->
-    share leave_it
-  end;
+  share leave_it;
   Guardian.close () |> ignore;
   print_endline "Exiting from program...";
   after (Core.Std.sec 0.05) >>= fun _ ->
   return (ignore (Pervasives.exit 0))
-
-(* Should only be called for emergency program termination. *)
-let force_end : unit -> unit = fun _ ->
-  (* Clear the GUI *)
-  Gui.terminate ();
-  print_endline "Exiting from program...";
-  ignore (Pervasives.exit 0)
 
 (* THE INIT FUNCTION *)
 

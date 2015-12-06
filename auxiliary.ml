@@ -1,7 +1,7 @@
 (* Set to false to no prints. *)
 let debug : bool = false
 (* Set to false to no logs. *)
-let log   : bool = true
+let log   : bool = false
 
 let pd (s : string) : unit =
   if not debug then () else print_endline ("[D> " ^ s ^ "]")

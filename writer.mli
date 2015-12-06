@@ -10,7 +10,4 @@
  * This is only here for referece. *)
 val uncap : string list -> unit
 
-(* Exits cleanly. *)
-val force_end : unit -> unit
-
 exception FileFailedToOpen
