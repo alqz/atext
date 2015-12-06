@@ -10,11 +10,13 @@ Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, 
 
 Ultra lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
 
-## Features
+### Features
 
-Basic file editing, creating, saving. No undo, select, copy, paste.
-Saving, scrolling GUI with colored cursors.
-Changes appear in real time on all collaborators' screens.
+Basic file editing, creating, saving. Inserting, moving, deleting, returning.
+
+GUI with colored cursors, scrolling.
+
+Multiple simultaneous collaborators. Changes appear in real time on all collaborators' screens.
 
 ### Usage
 
