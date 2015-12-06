@@ -1,14 +1,15 @@
 # atext
 
-For synchronized text-editor project by ATE.
+### Overview
+
+Synchronized text-editor project by ATE.
+
+Ultra lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
+
 
 ### About the Developer
 
 Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed for Cornell University CS 3110 final project.
-
-### Overview
-
-Ultra lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
 
 ### Features
 
