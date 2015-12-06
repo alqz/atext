@@ -67,13 +67,15 @@ After the host has initialized, you are ready! Type something into the empty fil
 
 #### 2.2.3. Initializing the Guest
 
-First, determine the IP of the host. This IP on OS X is listed under `en0:` and next to `inet`. I don't know much about this part, either. Say this number is `10.130.130.70`.
+First, determine the IP of the host. This IP on OS X is listed under `en0:` and next to `inet`. I don't know much about this part, either, so you may have to try different addresses. Say, for now, this number is `10.130.130.70`. (If you have a DNS address, lookup is automatic.)
 
 To connect to the host, use:
 ```
 cs3110 run writer.ml -- guest 10.130.130.70 8484
 ```
 Again, note that the numbers need to be changed.
+
+You may connect from a different computer or from the same computer. If connecting from the same computer, you may use `localhost` instead of the IP address. In our trials there was no need to disable the host computer's firewall.
 
 At this point, you are ready.
 
