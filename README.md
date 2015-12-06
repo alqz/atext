@@ -7,17 +7,17 @@ Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, 
 ## Usage
 Need to install OCaml Curses first.
 ```
-$ opam install curses
+opam install curses
 ```
 Make sure your utop is up to date.
 ```
-$ opam pin add utop https://github.com/cs3110/utop.git
-$ opam update utop
-$ opam upgrade utop
+opam pin add utop https://github.com/cs3110/utop.git
+opam update utop
+opam upgrade utop
 ```
 Then compile using:
 ```
-$ cs3110 compile writer.ml
+cs3110 compile writer.ml
 ```
 
 To run, use one of the following:
