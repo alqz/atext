@@ -121,6 +121,13 @@ and stop_listen : unit -> unit Deferred.t = fun _ ->
   after (Core.Std.sec 0.05) >>= fun _ ->
   return (ignore (Pervasives.exit 0))
 
+(* Should only be called for emergency program termination. *)
+let force_end : unit -> unit = fun _ ->
+  (* Clear the GUI *)
+  Gui.terminate ();
+  print_endline "Exiting from program...";
+  ignore (Pervasives.exit 0)
+
 (* THE INIT FUNCTION *)
 
 let uncap (arg_list : string list) : unit =

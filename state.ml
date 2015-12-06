@@ -450,11 +450,13 @@ let blank : unit -> t = fun _ ->
 
 let instantiate (cid  : Cursor.id)
   (data : string list) (fn   : File.name) : t = {
-    cursors = [
+    cursors = [Cursor.new_cursor_from_id cid];
+    (* For testing of multiple cursors. *)
+    (* cursors = [
       Cursor.new_cursor_from_id cid;
       Cursor.instantiate (Cursor.gen_id ()) 0 1;
       Cursor.instantiate (Cursor.gen_id ()) 5 1;
-      Cursor.instantiate (Cursor.gen_id ()) 5 4];
+      Cursor.instantiate (Cursor.gen_id ()) 5 4]; *)
     (* We basically disallow empty states. *)
     text = if data = [] then [""] else data;
     origin = fn}
