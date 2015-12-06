@@ -451,7 +451,6 @@ let blank : unit -> t = fun _ ->
 let instantiate (cid  : Cursor.id)
   (data : string list) (fn   : File.name) : t = {
     cursors = [Cursor.new_cursor_from_id cid];
-    Writer.force_end ();
     (* For testing of multiple cursors. *)
     (* cursors = [
       Cursor.new_cursor_from_id cid;
