@@ -4,9 +4,9 @@
 
 Synchronized text-editor project by ATE.
 
-Lightweight program to do Google Docs-like synchronized file editing with your collaborators right in your command prompt, without the need for a browser.
+Lightweight program to do Google Docs-like real-time synchronized file editing with multiple collaborators right in the command prompt, without the need for a browser.
 
-### 1.1. About the Developer
+### 1.1. Developers
 
 Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed as final project for CS 3110: Functional Programming and Data Structures at Cornell University.
 
