@@ -1,8 +1,3 @@
-(* cursor.ml
- * Updated 151125 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 (* YYYY, MO, DD, HH, MI, SS, numbers; for example:
  *   2015, 11, 9, 21, 5, 22, 9999999
  *)

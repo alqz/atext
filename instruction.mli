@@ -1,8 +1,3 @@
-(* instruction.mli
- * Updated 151109 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 type dir = Up | Down | Left | Right
 
 type operation =

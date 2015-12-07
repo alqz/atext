@@ -1,8 +1,3 @@
-(* cursor.mli
- * Updated 151125 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 (* In this module, we keep track of the cursor. *)
 
 (* The id of the cursor. *)

@@ -1,8 +1,3 @@
-(* file.mli
- * Updated 151127 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 (* File name. *)
 type name
 type path

@@ -1,8 +1,3 @@
-(* writer.ml
- * Updated 151126 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 open Async.Std
 open Auxiliary
 

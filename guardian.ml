@@ -1,8 +1,3 @@
-(* guardian.ml
- * Updated 151126 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 open Auxiliary
 
 let me : Cursor.id ref =

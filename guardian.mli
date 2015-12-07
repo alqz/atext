@@ -1,8 +1,3 @@
-(* guardian.mli
- * Updated 151126 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 (* The guardian is the editor. It handles most of the algorithm work.
  * Also keeps track of the open state, and processes instructions. *)
 

@@ -1,8 +1,3 @@
-(* file.ml
- * Updated 151127 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 open Auxiliary
 
 (* File name. *)
