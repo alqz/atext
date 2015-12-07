@@ -56,11 +56,13 @@ let coerce (ao : 'a option) : 'a =
 let update_counter : int ref = ref 0
 let log_file : File.name =
   let name = Cursor.string_of_id !me in
-  File.create (File.file_of_string ("exlog/log_" ^ name))
+  let file = File.file_of_string ("exlog/log_" ^ name) in
+  if not Auxiliary.log then file else File.create file
 let log_data : string list ref = ref []
 
 (* Writes in the log, using output_counter. *)
 let logger (st : State.t) (it : Instruction.t) (valid : bool) : unit =
+  if not Auxiliary.log then () else
   let st_string : string =
     st |> State.encode |> Yojson.Basic.pretty_to_string in
   let it_string : string =
