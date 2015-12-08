@@ -4,6 +4,7 @@ Table of contents:
  1. Overview
  2. Usage
  3. Acknowledgements
+ 4. Future
 
 ## 1. Overview
 
