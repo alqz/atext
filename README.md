@@ -96,3 +96,14 @@ We'd like to thank CS 3110 TA Patrick Cao for reading our design proposal and gi
 We'd like to thank everyone who made OCaml and its modules, Async, Curses, Yojson, possible.
 
 We'd like to thank CS 3110 Professor Michael Clarkson for the motivation of this project, for the guidance on approaching it, and for being a brilliantly knowledgeable and infinitely enthusiastic professor. We learned immensely about functional programming these four months.
+
+## 4. Future
+
+These features are not supported but may be supported in the future:
+
+ - Text selection and deleting selected text
+ - Transfer of host status
+ - Automatic detection of hosts in local area network
+ - Encryption and password protection
+ - Folder background synchronization
+ - Change log (already implemented for debug purposes)
