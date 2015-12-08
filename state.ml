@@ -422,7 +422,7 @@ let add (st : t) (cid : Cursor.id) (ch : char) : bool =
         let (safe, nudged) : string * string = cut_at cur x in
         let (before, _, after) : row list * row list * row list =
             triptych st.text y 1 in
-        st.text <- before @ [safe ^ (Char.escaped ch) ^ nudged] @ after;
+        st.text <- before @ [safe ^ (String.make 1 ch) ^ nudged] @ after;
         let (after_on_row, unaffected) : Cursor.t list * Cursor.t list =
           get_cursors_after_on_row st cid in
         st.cursors <- unaffected @ (List.map Cursor.r after_on_row);
