@@ -1,15 +1,6 @@
-(* state.mli
- * Updated 151205 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 (* This module creates the type that stores the state.
  * Basically, state.t is how we can maintain a state in
  * a functional, non-imperative language. *)
-
-(* After some discussion about whether to represent rows as strings
- * or char lists. We decided that it doesn't really matter
- * and strings edge out char lists just slightly. *)
 
 type row
 
@@ -24,12 +15,14 @@ val get_cursors : t -> Cursor.t list
 (* Returns all the cursors that don't match the id.
  * Does not require id to be in state. *)
 val get_other_cursors : t -> Cursor.id -> Cursor.t list
+
 (* [new_cursor st] creates a new cursor in state [st]. *)
 val new_cursor : t -> unit
 (* Also gives the cursor itself. *)
 val new_cursor_get : t -> Cursor.id
 (* Adds a cursor to the state. false if id already exists. *)
 val add_cursor : t -> Cursor.id -> bool
+
 (* Removes a cursor from the state. false if doesn't exist. *)
 val del_cursor : t -> Cursor.id -> bool
 
