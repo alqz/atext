@@ -82,13 +82,13 @@ You may connect from a different computer or from the same computer. If connecti
 
 At this point, you are ready.
 
-#### 2.2.4. Leaving, Saving, and Usage
+#### 2.2.4. Editing, Leaving, Saving
 
-Observe a collaborative feature very similar to Google Docs, but for files right in your command line.
+Observe a collaborative feature reminiscient to Google Docs, but for files on your computer, taking place right in your command line.
 
-To exit client, simply press Esc. Your copy of the file will automatically be saved as `myfiles/helloworld.txt`. You may join again using the above instructions.
+To exit client, simply press Esc. Your copy of the file will automatically be saved as `myfiles/helloworld.txt` (or any name the host gave it). You may join again using the above instructions.
 
-To exit host, also press Esc. Your copy of the file will automatically be saved as `myfiles/helloworld.txt`. Note that when the host leaves, all of the guests are forced to leave. The transfer of host has not been implemented due to the time limit on developing this final project.
+To exit host, also press Esc. Your copy of the file will automatically be saved as `myfiles/helloworld.txt` (or any name that you gave it). Note that when the host leaves, all of the guests are forced to leave. The transfer of host has not been implemented due to the time limit on developing this final project.
 
 ## 3. Acknowledgements
 
