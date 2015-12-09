@@ -1,8 +1,3 @@
-(* state.ml
- * Updated 151204 by Albert Zhang
- * For ATEXT text-editor project.
- *)
-
 open Auxiliary
 
 type row = string
