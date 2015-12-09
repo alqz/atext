@@ -100,11 +100,11 @@ We'd like to thank CS 3110 Professor Michael Clarkson for the motivation of this
 
 ## 4. Future
 
-These features are not supported but may be supported in the future:
+These features are not supported but are considered for future extensions:
 
  - Text selection and deleting selected text
  - Transfer of host status
  - Automatic detection of hosts in local area network
  - Encryption and password protection
  - Folder background synchronization
- - Change log (already implemented for debug purposes)
+ - Change log (already implemented for debug; needs polishing for general use)
