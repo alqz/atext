@@ -24,6 +24,8 @@ Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, 
 
 ## 2. Usage
 
+Currently, usage instructions are for users with the CS 3110 virtual machine running OCaml 4.02 or later. Compilation using Ocamlbuild is also possible, but not described below.
+
 ### 2.1. Short Version
 
 Need to install OCaml Curses first.
