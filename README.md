@@ -3,8 +3,9 @@
 Table of contents:
  1. Overview
  2. Usage
- 3. Acknowledgements
- 4. Future
+ 3. Implementation Details
+ 4. Acknowledgements
+ 5. Future
 
 ## 1. Overview
 
@@ -90,7 +91,17 @@ To exit client, simply press Esc. Your copy of the file will automatically be sa
 
 To exit host, also press Esc. Your copy of the file will automatically be saved as `myfiles/helloworld.txt` (or any name that you gave it). Note that when the host leaves, all of the guests are forced to leave. The transfer of host has not been implemented due to the time limit on developing this final project.
 
-## 3. Acknowledgements
+## 3. Implementation Details
+
+The GUI is the command line window. We use OCaml Curses for the GUI. It only supports 6 colors. The maximum number of simultaneous collaborators is 99, but by default we limit seven collaborators. This can be changed in `writer.ml`. When there are more than seven collaborators, some will have the same color cursor. Your own cursor is always white, and no other cursor is white.
+
+We don't support text selection via holding down the Shift key. However, your command line will support manual selection using the mouse pointer. Use this for copying and pasting.
+
+Scrolling left, right, up, down is automatic.
+
+Simultaneously text entry at the same location should not be problematic. If connecting over LAN, there should be no problems. If connected over the Internet, normal usage should also not cause problems. If your connection is very slow and you spam by holding down a key or keyboard mashing in attempt to break the asynchronous instruction handling, there could occasionally be misplaced characters.
+
+## 4. Acknowledgements
 
 We'd like to thank CS 3110 TAs Shiyu Wang and Jonathan Chan for listening to and answering our early questions.
 
@@ -100,7 +111,7 @@ We'd like to thank everyone who made OCaml and its modules, Async, Curses, Yojso
 
 We'd like to thank CS 3110 Professor Michael Clarkson for the motivation of this project, for the guidance on approaching it, and for being a brilliantly knowledgeable and infinitely enthusiastic professor. We learned immensely about functional programming these four months.
 
-## 4. Future
+## 5. Future
 
 These features are not supported but are considered for future extensions:
 
@@ -110,3 +121,4 @@ These features are not supported but are considered for future extensions:
  - Encryption and password protection
  - Folder background synchronization
  - Change log (already implemented for debug; needs polishing for general use)
+ - Syntax highlighting
