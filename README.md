@@ -13,7 +13,7 @@ ATExt (EY-tekst) is a lightweight, collaborative, synchronized text-editor. Mult
 
 ### 1.1. Developers
 
-Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed as final project for CS 3110: Functional Programming and Data Structures at Cornell University.
+Planned, designed, implemented by the members of ATE, Albert Zhang, Timothy Ng, Eyal Sela. Developed as final project for CS 3110: Data Structures and Functional Programming at Cornell University.
 
 ### 1.2. Features
 
