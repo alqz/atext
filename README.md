@@ -9,9 +9,7 @@ Table of contents:
 
 ## 1. Overview
 
-Synchronized text-editor project by ATE.
-
-Lightweight program to do Google Docs-like real-time synchronized file editing with multiple collaborators right in the command prompt, without the need for a browser.
+ATExt (EY-tekst) is a lightweight, collaborative, synchronized text-editor. Multiple collaborators may work on the same file at the same time, with all changes synchronized and displayed to all collaborators in real time. No need for browser or cloud storage; host on any computer, from any file on your computer; edit right from your command line.
 
 ### 1.1. Developers
 
